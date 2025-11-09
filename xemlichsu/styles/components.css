@@ -1,0 +1,193 @@
+/* Evaluation Modal */
+.evaluation-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.evaluation-modal.open {
+  display: flex;
+}
+
+.evaluation-form {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+.evaluation-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.evaluation-form-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0388b4;
+}
+
+.evaluation-form-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #7f8c8d;
+  transition: all 0.3s ease;
+  line-height: 1;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.evaluation-form-close:hover {
+  color: #0388b4;
+  transform: rotate(90deg);
+}
+
+.student-info-display {
+  background: rgba(3, 136, 180, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.student-info-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.student-info-item:last-child {
+  margin-bottom: 0;
+}
+
+.student-info-label {
+  font-weight: 600;
+  color: #0388b4;
+}
+
+.student-info-value {
+  color: #34495e;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #0388b4;
+  font-size: 14px;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.form-textarea:focus {
+  border-color: #0388b4;
+  box-shadow: 0 0 0 3px rgba(3, 136, 180, 0.1);
+}
+
+.rating-options {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.rating-btn {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #34495e;
+}
+
+.rating-btn:hover {
+  border-color: #0388b4;
+  background: rgba(3, 136, 180, 0.05);
+}
+
+.rating-btn.selected {
+  border-color: #27ae60;
+  background: rgba(39, 174, 96, 0.1);
+  color: #27ae60;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.btn-submit {
+  flex: 1;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.btn-cancel-eval {
+  flex: 1;
+  padding: 12px 20px;
+  background: #ecf0f1;
+  color: #34495e;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel-eval:hover {
+  background: #dfe6e9;
+}

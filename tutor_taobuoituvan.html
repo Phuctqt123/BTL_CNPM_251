@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Ký Buổi Tư Vấn</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #ffffff;
+      overflow-x: hidden;
+      color: #333;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-container {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 65px;
+      padding-top: 0;
+    }
+
+    .footer-wrapper {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 65px;
+      z-index: 1000;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 500px;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 500px;
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+      }
+    }
+
+    .form-section {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(3, 136, 180, 0.08);
+      margin: 30px 20px;
+      animation: slideInUp 0.6s ease;
+      border-top: 4px solid #0388B4;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .form-section:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(3, 136, 180, 0.2);
+      border-top-color: #026689;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0388B4;
+      margin-bottom: 25px;
+      border-bottom: 2px solid #0388B4;
+      padding-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group.hidden {
+      display: none;
+    }
+
+    .form-group.toggle-field {
+      animation: slideDown 0.4s ease;
+      overflow: hidden;
+    }
+
+    .form-group.toggle-field.hide {
+      animation: slideUp 0.4s ease;
+    }
+
+    .form-label {
+      font-size: 14px;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-label .required {
+      color: #e74c3c;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      color: #333;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: #0388B4;
+      box-shadow: 0 0 0 3px rgba(3, 136, 180, 0.1);
+      background: #f0f8fb;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 30px;
+      margin-top: 12px;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .radio-item input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #0388B4;
+    }
+
+    .radio-item label {
+      cursor: pointer;
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .number-input-group {
+      display: flex;
+      gap: 15px;
+    }
+
+    .number-input-group .form-input {
+      flex: 1;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: #0388B4;
+      color: white;
+      box-shadow: 0 4px 12px rgba(3, 136, 180, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: #026689;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(3, 136, 180, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #333;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: #cccccc;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 20px 0 65px 0;
+      }
+
+      .form-section {
+        margin: 20px 15px;
+        padding: 20px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .number-input-group {
+        flex-direction: column;
+      }
+
+      .button-group {
+        flex-direction: column;
+        justify-content: stretch;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .radio-group {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <iframe src="header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
+
+  <!-- Main Content -->
+  <div class="main-container">
+    <div class="form-section">
+      <div class="section-title">📝 Tạo Buổi Tư Vấn Mới</div>
+      
+      <form id="consultationForm">
+        <!-- Tên buổi tư vấn -->
+        <div class="form-group">
+          <label class="form-label">
+            Tên buổi tư vấn <span class="required">*</span>
+          </label>
+          <input type="text" class="form-input" placeholder="Nhập tên buổi tư vấn" required>
+        </div>
+
+        <!-- Thời gian -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              Thời gian bắt đầu <span class="required">*</span>
+            </label>
+            <input type="datetime-local" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              Thời gian kết thúc <span class="required">*</span>
+            </label>
+            <input type="datetime-local" class="form-input" required>
+          </div>
+        </div>
+
+        <!-- Số lượng sinh viên -->
+        <div class="form-group">
+          <label class="form-label">
+            Số lượng sinh viên <span class="required">*</span>
+          </label>
+          <div class="number-input-group">
+            <input type="number" class="form-input" placeholder="Tối thiểu" min="0" required>
+            <input type="number" class="form-input" placeholder="Tối đa" min="0" required>
+          </div>
+        </div>
+
+        <!-- Hình thức -->
+        <div class="form-group">
+          <label class="form-label">
+            Hình thức <span class="required">*</span>
+          </label>
+          <div class="radio-group">
+            <div class="radio-item">
+              <input type="radio" id="offline" name="format" value="offline" checked>
+              <label for="offline">Offline</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" id="online" name="format" value="online">
+              <label for="online">Online</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Địa chỉ phòng họp (Offline) -->
+        <div class="form-group toggle-field" id="offlineField">
+          <label class="form-label">
+            Địa chỉ phòng <span class="required">*</span>
+          </label>
+          <select class="form-select" id="roomSelect" required>
+            <option value="">-- Chọn phòng --</option>
+            <option value="room-101">Phòng 101 - Tầng 1</option>
+            <option value="room-201">Phòng 201 - Tầng 2</option>
+            <option value="room-301">Phòng 301 - Tầng 3</option>
+            <option value="room-401">Phòng 401 - Tầng 4</option>
+            <option value="room-501">Phòng 501 - Tầng 5</option>
+          </select>
+        </div>
+
+        <!-- Link Online (Online) -->
+        <div class="form-group toggle-field hidden" id="onlineField">
+          <label class="form-label">
+            Link Zoom/Google Meet <span class="required">*</span>
+          </label>
+          <input type="url" class="form-input" id="linkInput" placeholder="Nhập link cuộc họp trực tuyến">
+        </div>
+
+        <!-- Yêu cầu khác -->
+        <div class="form-group">
+          <label class="form-label">
+            Yêu cầu khác
+          </label>
+          <textarea class="form-textarea" placeholder="Nhập các yêu cầu hoặc ghi chú khác (nếu có)"></textarea>
+        </div>
+
+        <!-- Button Group -->
+        <div class="button-group">
+          <button type="reset" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Hủy
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-check"></i> Tạo buổi tư vấn
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-wrapper">
+    <iframe src="footer.html" style="width: 100%; border: none; overflow: hidden; display: block; height: 100%;"></iframe>
+  </div>
+
+  <script>
+    const form = document.getElementById('consultationForm');
+    const offlineRadio = document.getElementById('offline');
+    const onlineRadio = document.getElementById('online');
+    const offlineField = document.getElementById('offlineField');
+    const onlineField = document.getElementById('onlineField');
+    const roomSelect = document.getElementById('roomSelect');
+    const linkInput = document.getElementById('linkInput');
+
+    function toggleFields() {
+      if (onlineRadio.checked) {
+        // Show online field, hide offline field
+        offlineField.classList.add('hidden');
+        offlineField.classList.remove('toggle-field');
+        roomSelect.removeAttribute('required');
+        
+        onlineField.classList.remove('hidden');
+        onlineField.classList.add('toggle-field');
+        linkInput.setAttribute('required', 'required');
+      } else {
+        // Show offline field, hide online field
+        onlineField.classList.add('hidden');
+        onlineField.classList.remove('toggle-field');
+        linkInput.removeAttribute('required');
+        
+        offlineField.classList.remove('hidden');
+        offlineField.classList.add('toggle-field');
+        roomSelect.setAttribute('required', 'required');
+      }
+    }
+
+    // Event listeners for radio buttons
+    offlineRadio.addEventListener('change', toggleFields);
+    onlineRadio.addEventListener('change', toggleFields);
+    
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Thêm logic xử lý form submission ở đây
+      console.log('Form submitted');
+      alert('Buổi tư vấn được tạo thành công!');
+    });
+
+    form.addEventListener('reset', function() {
+      document.getElementById('offline').checked = true;
+      setTimeout(toggleFields, 50);
+    });
+  </script>
+</body>
+</html>
