@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông Tin Cá Nhân Sinh Viên</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;width:100%}
+    body{font-family:'Poppins',sans-serif;background:#ffffff;overflow-x:hidden;color:#333;position:relative;display:flex;flex-direction:column}
+    .main-container{flex:1;overflow-y:auto;padding-bottom:65px;padding-top:0}
+    .footer-wrapper{position:fixed;bottom:0;width:100%;height:65px;z-index:1000}
+    @keyframes slideInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .profile-section{background:white;border-radius:15px;padding:25px;box-shadow:0 4px 12px rgba(3,136,180,0.08);margin:30px 20px;animation:slideInUp 0.6s ease;border-top:4px solid #0388B4;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+    .profile-section:nth-child(1){animation-delay:0.1s}
+    .profile-section:nth-child(2){animation-delay:0.2s}
+    .profile-section:hover{transform:translateY(-8px);box-shadow:0 16px 40px rgba(3,136,180,0.2);border-top-color:#026689}
+    .section-title{font-size:18px;font-weight:700;color:#0388B4;margin-bottom:20px;border-bottom:2px solid #0388B4;padding-bottom:12px;letter-spacing:0.5px}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+    .info-item{padding:14px 16px;background:#f8fafb;border-left:3px solid #0388B4;border-radius:8px;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);cursor:pointer}
+    .info-item:hover{background:#e3f2fd;transform:translateX(6px);box-shadow:0 6px 16px rgba(3,136,180,0.2);border-left-color:#026689}
+    .info-label{font-size:12px;color:#666;font-weight:700;text-transform:uppercase;letter-spacing:0.8px}
+    .info-value{font-size:16px;color:#333;margin-top:6px;font-weight:600;transition:all 0.3s ease}
+    .info-item:hover .info-value{color:#0388B4}
+    .empty-field{color:#999;font-style:italic}
+    @media(max-width:768px){
+      .main-container{padding:20px 0 65px 0}
+      .info-grid{grid-template-columns:1fr}
+      .profile-section{margin:20px 15px;padding:20px}
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <iframe src="header.html" style="width:100%;border:none;overflow:hidden;display:block;"></iframe>
+
+  <!-- Main Content -->
+  <div class="main-container" id="mainContent">
+    <!-- Nội dung sẽ được render bằng JavaScript từ data2.js -->
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-wrapper">
+    <iframe src="footer.html" style="width:100%;border:none;overflow:hidden;display:block;height:100%;"></iframe>
+  </div>
+
+  <!-- Load dữ liệu -->
+  <script src="data2.js"></script>
+  <script>
+    // === CHỈ SỬA PHẦN NÀY – GIỮ NGUYÊN GIAO DIỆN ===
+    async function renderProfile() {
+      const container = document.getElementById('mainContent');
+      
+      try {
+        // Lấy dữ liệu từ data2.js (có hàm getStudentProfile)
+        const profile = await getStudentProfile();
+
+        container.innerHTML = '';
+
+        // Tạo section Thông tin cá nhân
+        const section1 = document.createElement('div');
+        section1.className = 'profile-section';
+        section1.innerHTML = `
+          <div class="section-title">User Thông Tin Cá Nhân</div>
+          <div class="info-grid"></div>
+        `;
+        const grid1 = section1.querySelector('.info-grid');
+        Object.entries(profile.personalInfo).forEach(([label, value]) => {
+          const item = document.createElement('div');
+          item.className = 'info-item';
+          item.innerHTML = `
+            <div class="info-label">${label}</div>
+            <div class="info-value">
+              ${value === null || value === undefined || value === '' || value === '--' 
+                ? '<span class="empty-field">-- (Chưa điền/Bỏ trống)</span>' 
+                : value}
+            </div>
+          `;
+          grid1.appendChild(item);
+        });
+        container.appendChild(section1);
+
+        // Tạo section Thông tin thường trú
+        const section2 = document.createElement('div');
+        section2.className = 'profile-section';
+        section2.innerHTML = `
+          <div class="section-title">Home Thông Tin Thường Trú</div>
+          <div class="info-grid"></div>
+        `;
+        const grid2 = section2.querySelector('.info-grid');
+        Object.entries(profile.residenceInfo).forEach(([label, value]) => {
+          const item = document.createElement('div');
+          item.className = 'info-item';
+          item.innerHTML = `
+            <div class="info-label">${label}</div>
+            <div class="info-value">
+              ${value === null || value === undefined || value === '' || value === '--' 
+                ? '<span class="empty-field">-- (Chưa điền/Bỏ trống)</span>' 
+                : value}
+            </div>
+          `;
+          grid2.appendChild(item);
+        });
+        container.appendChild(section2);
+
+      } catch (err) {
+        container.innerHTML = '<div style="text-align:center;color:#e74c3c;padding:50px">Không thể tải thông tin cá nhân.</div>';
+        console.error(err);
+      }
+    }
+
+    // Chạy khi trang load xong
+    document.addEventListener('DOMContentLoaded', renderProfile);
+  </script>
+</body>
+</html>

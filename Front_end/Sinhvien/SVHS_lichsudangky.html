@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lịch Sử Đăng Ký Buổi Tư Vấn</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+      color: #2c3e50;
+      line-height: 1.6;
+    }
+
+    .main-container {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 65px;
+    }
+
+    .footer-wrapper {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 65px;
+      z-index: 1000;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #0388B4;
+      animation: slideInDown 0.6s ease-out;
+      cursor: pointer;
+      position: relative;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+
+    .page-title::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #0388B4, #00d4ff);
+      transition: width 0.4s ease;
+    }
+
+    .page-title:hover::after {
+      width: 100%;
+    }
+
+    .page-title:hover {
+      text-shadow: 0 0 20px rgba(3, 136, 180, 0.5);
+      transform: scale(1.02) translateY(-2px);
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: #7f8c8d;
+      margin-bottom: 30px;
+    }
+
+    .filter-section {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      animation: slideInUp 0.6s ease-out 0.1s backwards;
+    }
+
+    .filter-btn {
+      padding: 10px 20px;
+      border: 2px solid #0388B4;
+      background: white;
+      color: #0388B4;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .filter-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: #0388B4;
+      transition: left 0.3s ease;
+      z-index: -1;
+    }
+
+    .filter-btn:hover::before,
+    .filter-btn.active::before {
+      left: 0;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: #0388B4;
+      color: white;
+      box-shadow: 0 8px 20px rgba(3, 136, 180, 0.3);
+      transform: translateY(-3px);
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      animation: slideInUp 0.6s ease-out 0.2s backwards;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px 20px;
+      border: 2px solid #ddd;
+      border-radius: 25px;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+      border-color: #0388B4;
+      box-shadow: 0 0 0 3px rgba(3, 136, 180, 0.1);
+    }
+
+    .sessions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 25px;
+      animation: fadeIn 0.6s ease-out 0.3s backwards;
+    }
+
+    .session-card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+      animation: cardAppear 0.5s ease-out backwards;
+    }
+
+    .session-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #0388B4, #00d4ff);
+    }
+
+    .session-card.completed::before {
+      background: linear-gradient(90deg, #27ae60, #2ecc71);
+    }
+
+    .session-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .session-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .session-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0388B4;
+      flex: 1;
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      white-space: nowrap;
+      animation: scaleIn 0.4s ease-out;
+    }
+
+    .status-badge.upcoming {
+      background: rgba(3, 136, 180, 0.1);
+      color: #0388B4;
+    }
+
+    .status-badge.completed {
+      background: rgba(39, 174, 96, 0.1);
+      color: #27ae60;
+    }
+
+    .session-info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 18px;
+    }
+
+    .info-row {
+      display: flex;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #0388B4;
+      min-width: 100px;
+    }
+
+    .info-value {
+      color: #34495e;
+      flex: 1;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .action-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .action-btn:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .action-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #0388B4, #00d4ff);
+      color: white;
+      box-shadow: 0 4px 15px rgba(3, 136, 180, 0.3);
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(3, 136, 180, 0.5);
+    }
+
+    .btn-cancel {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: white;
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-cancel:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(231, 76, 60, 0.5);
+    }
+
+    .btn-evaluate {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: white;
+      box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-evaluate:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(39, 174, 96, 0.5);
+    }
+
+    /* Documents Panel */
+    .documents-management {
+      display: none;
+      position: fixed;
+      bottom: 65px;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 2px solid #0388B4;
+      padding: 15px 40px;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+      max-height: 50vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .documents-management.open {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .documents-management-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #0388B4;
+      margin-bottom: 10px;
+    }
+
+    .documents-management-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #7f8c8d;
+      transition: all 0.3s ease;
+    }
+
+    .documents-management-close:hover {
+      color: #0388B4;
+      transform: rotate(90deg);
+    }
+
+    .documents-items-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .document-item-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(3, 136, 180, 0.1);
+      border: 1px solid #0388B4;
+      border-radius: 20px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #0388B4;
+      font-weight: 500;
+      animation: fadeIn 0.4s ease-out;
+      transition: all 0.3s ease;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .document-item-tag:hover {
+      background: rgba(3, 136, 180, 0.2) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(3, 136, 180, 0.2);
+    }
+
+    .document-item-tag:active {
+      transform: translateY(0);
+    }
+
+    .document-icon {
+      font-size: 14px;
+    }
+
+    .document-item-tag.pdf .document-icon { color: #D32F2F; }
+    .document-item-tag.docx .document-icon { color: #1976D2; }
+    .document-item-tag.pptx .document-icon { color: #E65100; }
+    .document-item-tag.xlsx .document-icon { color: #1B5E20; }
+    .document-item-tag.zip .document-icon { color: #7B1FA2; }
+    .document-item-tag.image .document-icon { color: #7C4DFF; }
+    .document-item-tag.video .document-icon { color: #C2185B; }
+    .document-item-tag.txt .document-icon { color: #455A64; }
+    .document-item-tag.folder .document-icon { color: #FF9800; }
+
+    /* Evaluation Modal */
+    .evaluation-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .evaluation-modal.open {
+      display: flex;
+    }
+
+    .evaluation-form {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .evaluation-form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #ecf0f1;
+    }
+
+    .evaluation-form-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0388B4;
+    }
+
+    .evaluation-form-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #7f8c8d;
+      transition: all 0.3s ease;
+    }
+
+    .evaluation-form-close:hover {
+      color: #0388B4;
+      transform: rotate(90deg);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #0388B4;
+      font-size: 14px;
+    }
+
+    /* Đánh giá sao - ĐÃ SỬA HOÀN TOÀN */
+    .rating {
+      display: flex;
+      gap: 8px;
+      direction: rtl;
+      justify-content: center;
+      
+      margin-bottom: 15px;
+      unicode-bidi: bidi-override;
+    }
+
+    .rating input {
+      display: none;
+    }
+
+    .rating label {
+      font-size: 32px;
+      color: #e0e0e0;
+      cursor: pointer;
+      transition: color 0.25s ease, transform 0.2s ease;
+      text-shadow: 0 0 1px rgba(0,0,0,0.1);
+    }
+
+    .rating label:before {
+      content: '★';
+    }
+
+    .rating input:checked ~ label,
+    .rating label:hover,
+    .rating label:hover ~ label {
+      color: #f39c12 !important;
+      text-shadow: 0 0 8px rgba(243, 156, 18, 0.6);
+    }
+
+    .rating label:hover {
+      transform: scale(1.15);
+    }
+
+    .form-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 13px;
+      resize: vertical;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-textarea:focus {
+      border-color: #0388B4;
+      box-shadow: 0 0 0 3px rgba(3, 136, 180, 0.1);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .btn-submit {
+      flex: 1;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-cancel-eval {
+      flex: 1;
+      padding: 12px 20px;
+      background: #ecf0f1;
+      color: #34495e;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel-eval:hover {
+      background: #dfe6e9;
+    }
+
+    @keyframes slideInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes cardAppear {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .page-title { font-size: 24px; }
+      .filter-section { flex-direction: column; }
+      .sessions-grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .evaluation-form { padding: 30px 20px; }
+      .rating label { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <iframe src="header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
+
+  <div class="main-container">
+    <main>
+      <h2 class="page-title">Lịch Sử Đăng Ký Buổi Tư Vấn</h2>
+      <p class="page-subtitle">Quản lý và theo dõi tất cả các buổi tư vấn đã đăng ký</p>
+
+      <div class="filter-section">
+        <button class="filter-btn active" onclick="filterSessions('all')">Tất Cả</button>
+        <button class="filter-btn" onclick="filterSessions('upcoming')">Sắp Diễn Ra</button>
+        <button class="filter-btn" onclick="filterSessions('completed')">Đã Kết Thúc</button>
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Tìm kiếm buổi tư vấn..." onkeyup="searchSessions()">
+        </div>
+      </div>
+
+      <div class="sessions-grid" id="sessionsGrid"></div>
+    </main>
+  </div>
+
+  <!-- Documents Panel -->
+  <div class="documents-management" id="documentsManagement">
+    <div class="documents-management-header">
+      <span>Xem Tài Liệu</span>
+      <button class="documents-management-close" onclick="closeDocumentsManagement()">×</button>
+    </div>
+    <div class="documents-items-container" id="documentsContainer"></div>
+  </div>
+
+  <!-- Evaluation Modal -->
+  <div class="evaluation-modal" id="evaluationModal">
+    <div class="evaluation-form">
+      <div class="evaluation-form-header">
+        <div class="evaluation-form-title">Đánh Giá Buổi Tư Vấn</div>
+        <button class="evaluation-form-close" onclick="closeEvaluationForm()">×</button>
+      </div>
+      
+      <form onsubmit="submitEvaluation(event)" id="evaluationForm">
+        <input type="hidden" id="evaluationSessionId" value="">
+
+        <div class="form-group">
+          <label class="form-label">Mức độ hài lòng *</label>
+          <div class="rating">
+            <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="Tuyệt vời - 5 sao"></label>
+            <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="Tốt - 4 sao"></label>
+            <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="Bình thường - 3 sao"></label>
+            <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="Tạm được - 2 sao"></label>
+            <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="Kém - 1 sao"></label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="evaluationDetail">Nhận Xét & Đề Xuất *</label>
+          <textarea id="evaluationDetail" class="form-textarea" placeholder="Nhập nhận xét và đề xuất của bạn..." required></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-submit">Gửi Đánh Giá</button>
+          <button type="button" class="btn-cancel-eval" onclick="closeEvaluationForm()">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="footer-wrapper">
+    <iframe src="footer.html" style="width: 100%; border: none; overflow: hidden; display: block; height: 100%;"></iframe>
+  </div>
+
+  <!-- Data & Scripts -->
+  <script src="data4.js"></script>
+  <script>
+    let historyData = { sessions: [] }; // sẽ được gán từ API
+    let currentSessionId = null;
+
+    // ================== GỌI API KHI LOAD TRANG ==================
+    document.addEventListener('DOMContentLoaded', async () => {
+      const grid = document.getElementById('sessionsGrid');
+      grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; padding:60px 20px; color:#666; font-size:1.1rem;">Đang tải lịch sử đăng ký...</p>';
+
+      try {
+        const data = await getHistoryData();  // Gọi API từ data4.js
+        historyData = data;
+        renderSessions(historyData.sessions);
+      } catch (err) {
+        grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; color:#e74c3c; padding:60px;">Lỗi tải dữ liệu. Vui lòng thử lại sau!</p>';
+        console.error("Lỗi tải lịch sử:", err);
+      }
+    });
+
+    function renderSessions(sessions) {
+      const grid = document.getElementById('sessionsGrid');
+      grid.innerHTML = '';
+
+      if (sessions.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; padding:80px; color:#95a5a6; font-size:1.1rem;">Bạn chưa đăng ký buổi tư vấn nào.</p>';
+        return;
+      }
+
+      sessions.forEach((session, index) => {
+        const delay = (index + 1) * 0.1;
+        const card = document.createElement('div');
+        card.className = `session-card ${session.status === 'completed' ? 'completed' : ''}`;
+        card.dataset.filter = session.status;
+        card.style.animationDelay = `${delay}s`;
+
+        const statusText = session.status === 'completed' ? 'Đã Kết Thúc' : 'Sắp Diễn Ra';
+        const statusClass = session.status === 'completed' ? 'completed' : 'upcoming';
+
+        const actionButton = session.status === 'completed'
+          ? `<button class="action-btn btn-evaluate" onclick="openEvaluationForm(${session.id})">Đánh Giá</button>`
+          : `<button class="action-btn btn-cancel" onclick="cancelRegistration(${session.id})">Hủy Đăng Ký</button>`;
+
+        card.innerHTML = `
+          <div class="session-header">
+            <div class="session-title">${session.title}</div>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+          </div>
+          <div class="session-info">
+            <div class="info-row">
+              <span class="info-label">Giảng viên:</span>
+              <span class="info-value">${session.lecturer}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Ngày:</span>
+              <span class="info-value">${session.date}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Thời gian:</span>
+              <span class="info-value">${session.time}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Địa điểm:</span>
+              <span class="info-value">${session.location}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Số lượng:</span>
+              <span class="info-value">${session.attendees || 'Chưa xác định'}</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="action-btn btn-download" onclick="openDocumentsManagement(${session.id})">
+              Tài Liệu (${(session.documents?.length || 0)})
+            </button>
+            ${actionButton}
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ================== CÁC HÀM KHÁC (giữ nguyên + nhỏ cải thiện) ==================
+    function openDocumentsManagement(sessionId) {
+      const docsPanel = document.getElementById('documentsManagement');
+      const docsContainer = document.getElementById('documentsContainer');
+      
+      currentSessionId = sessionId;
+      docsContainer.innerHTML = '';
+      
+      const session = historyData.sessions.find(s => s.id === sessionId);
+      if (!session || !session.documents || session.documents.length === 0) {
+        docsContainer.innerHTML = '<p style="color:#95a5a6; font-style:italic;">Không có tài liệu nào.</p>';
+      } else {
+        session.documents.forEach(docName => {
+          const { type, icon } = getFileInfo(docName);
+          const isFolder = !docName.includes('.') || docName.endsWith('/');
+
+          const tag = document.createElement('div');
+          tag.className = `document-item-tag ${isFolder ? 'folder' : type}`;
+          tag.innerHTML = `<i class="document-icon ${icon}"></i><span>${docName}</span>`;
+
+          tag.onclick = function(e) {
+            e.stopPropagation();
+            if (isFolder) {
+              alert(`Đây là thư mục: "${docName}"`);
+            } else {
+              const fileUrl = `documents/${sessionId}/${docName}`;
+              window.open(fileUrl, '_blank');
+            }
+          };
+
+          docsContainer.appendChild(tag);
+        });
+      }
+
+      docsPanel.classList.add('open');
+    }
+
+    function closeDocumentsManagement() {
+      document.getElementById('documentsManagement').classList.remove('open');
+    }
+
+    function openEvaluationForm(sessionId) {
+      currentSessionId = sessionId;
+      document.getElementById('evaluationSessionId').value = sessionId;
+      document.getElementById('evaluationDetail').value = '';
+      document.querySelectorAll('.rating input').forEach(input => input.checked = false);
+      document.getElementById('evaluationModal').classList.add('open');
+    }
+
+    function closeEvaluationForm() {
+      document.getElementById('evaluationModal').classList.remove('open');
+    }
+
+    function submitEvaluation(event) {
+      event.preventDefault();
+      const rating = document.querySelector('input[name="rating"]:checked')?.value;
+      const comment = document.getElementById('evaluationDetail').value.trim();
+
+      if (!rating || !comment) {
+        alert('Vui lòng điền đầy đủ đánh giá và nhận xét!');
+        return;
+      }
+
+      alert(`Cảm ơn bạn! Đánh giá ${rating} sao đã được gửi thành công cho buổi #${currentSessionId}`);
+      closeEvaluationForm();
+      // TODO: Gửi về backend ở đây
+    }
+
+    function cancelRegistration(sessionId) {
+      if (confirm('Bạn có chắc chắn muốn hủy đăng ký buổi tư vấn này?')) {
+        alert('Hủy đăng ký thành công! (Buổi ID: ' + sessionId + ')');
+        // TODO: Gọi API hủy thật
+        location.reload(); // demo
+      }
+    }
+
+    // Filter & Search
+    function filterSessions(filter) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.querySelectorAll('.session-card').forEach(card => {
+        const show = filter === 'all' || card.dataset.filter === filter;
+        card.style.display = show ? 'block' : 'none';
+      });
+    }
+
+    function searchSessions() {
+      const term = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('.session-card').forEach(card => {
+        const title = card.querySelector('.session-title').textContent.toLowerCase();
+        const lecturer = card.querySelector('.info-value')?.textContent.toLowerCase() || '';
+        const matches = title.includes(term) || lecturer.includes(term);
+        card.style.display = matches ? 'block' : 'none';
+      });
+    }
+
+    function getFileInfo(filename) {
+      const ext = filename.split('.').pop()?.toLowerCase() || '';
+      const map = {
+        'pdf': { type: 'pdf', icon: 'fas fa-file-pdf' },
+        'docx': { type: 'docx', icon: 'fas fa-file-word' }, 'doc': { type: 'docx', icon: 'fas fa-file-word' },
+        'pptx': { type: 'pptx', icon: 'fas fa-file-powerpoint' },
+        'xlsx': { type: 'xlsx', icon: 'fas fa-file-excel' },
+        'zip': { type: 'zip', icon: 'fas fa-file-archive' }, 'rar': { type: 'zip', icon: 'fas fa-file-archive' },
+        'jpg': { type: 'image', icon: 'fas fa-file-image' }, 'jpeg': { type: 'image', icon: 'fas fa-file-image' },
+        'png': { type: 'image', icon: 'fas fa-file-image' }, 'gif': { type: 'image', icon: 'fas fa-file-image' },
+        'mp4': { type: 'video', icon: 'fas fa-file-video' },
+        'txt': { type: 'txt', icon: 'fas fa-file-lines' }
+      };
+      return map[ext] || { type: 'file', icon: 'fas fa-file' };
+    }
+
+    // Gắn lại sự kiện cho các nút filter (vì dùng onclick inline nên không cần thêm)
+  </script>
+</body>
+</html>

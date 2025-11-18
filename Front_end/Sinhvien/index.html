@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Hỗ Trợ Tutor - Sinh Viên</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 65px;
+        }
+
+        .footer-wrapper {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 65px;
+            z-index: 1000;
+        }
+
+        .hero {
+            background: #000;
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            margin-left: 10px;
+        }
+
+        .hero video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .nav-section {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            color: #333;
+            font-weight: 700;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #0388B4;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(3, 136, 180, 0.2);
+        }
+
+        .nav-card-icon {
+            font-size: 2.5rem;
+            color: #0388B4;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-card:hover .nav-card-icon {
+            transform: scale(1.15);
+        }
+
+        .nav-card h3 {
+            color: #0388B4;
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+        }
+
+        .nav-card p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .chatbot-button {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #0388B4;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(3, 136, 180, 0.3);
+            transition: all 0.3s ease;
+            z-index: 999;
+            animation: slideUp 0.6s ease-out 0.5s both;
+        }
+
+        .chatbot-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(3, 136, 180, 0.4);
+        }
+
+        .chatbot-button:active {
+            transform: scale(0.95);
+        }
+
+        .chatbot-widget {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            max-height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 40px rgba(0, 0, 0, 0.16);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .chatbot-widget.active {
+            display: flex;
+        }
+
+        .chatbot-header {
+            background: #0388B4;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-close:hover {
+            transform: rotate(90deg);
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chatbot-message {
+            display: flex;
+            gap: 0.8rem;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .chatbot-message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .message-bubble.bot {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .message-bubble.user {
+            background: #0388B4;
+            color: white;
+        }
+
+        .chatbot-input {
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-input input:focus {
+            outline: none;
+            border-color: #0388B4;
+            box-shadow: 0 0 0 3px rgba(3, 136, 180, 0.1);
+        }
+
+        .chatbot-send {
+            background: #0388B4;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .chatbot-send:hover {
+            background: #026494;
+            transform: scale(1.05);
+        }
+
+        .notifications-section {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .notifications-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .notifications-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #0388B4, #e0e0e0);
+        }
+
+        .notification-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        .notification-item::before {
+            content: '';
+            position: absolute;
+            left: -11px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 3px solid #0388B4;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .notification-item:hover::before {
+            background: #0388B4;
+            box-shadow: 0 0 10px rgba(3, 136, 180, 0.3);
+        }
+
+        .notification-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .notification-item:hover .notification-content {
+            box-shadow: 0 4px 12px rgba(3, 136, 180, 0.15);
+        }
+
+        .notification-time {
+            color: #0388B4;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-text {
+            color: #555;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .notification-link {
+            color: #0388B4;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .notification-link:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .hero { height: 350px; }
+            .nav-grid { grid-template-columns: 1fr; }
+            .chatbot-widget {
+                width: 100%;
+                max-width: calc(100% - 40px);
+                right: 20px !important;
+                left: 20px !important;
+            }
+            .section-title { font-size: 1.5rem; }
+        }
+
+        video::-webkit-media-controls,
+        video::-webkit-media-controls-enclosure {
+            display: none !important;
+        }
+        video { pointer-events: none; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <iframe src="header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Hero Video -->
+        <section class="hero">
+            <video id="myVideo" autoplay muted loop controls style="width: 100%;"></video>
+        </section>
+
+        <!-- Navigation Cards -->
+        <section class="nav-section">
+            <h2 class="section-title">Các Chức Năng Chính</h2>
+            <div class="nav-grid" id="navGrid">
+                <!-- Cards sẽ được render bằng JS -->
+            </div>
+        </section>
+
+        <!-- Notifications -->
+        <section class="notifications-section">
+            <h2 class="section-title">Thông Báo Chung</h2>
+            <div class="notifications-timeline" id="notificationsTimeline">
+                <!-- Notifications sẽ được render bằng JS -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Chatbot -->
+    <button class="chatbot-button" id="chatbotBtn" title="Mở hỗ trợ">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <div class="chatbot-widget" id="chatbotWidget">
+        <div class="chatbot-header">
+            <h3>Hỗ Trợ Tutor</h3>
+            <button class="chatbot-close" id="chatbotClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chatbot-message">
+                <div class="message-bubble bot">
+                    Xin chào! Tôi có thể giúp bạn điều gì? Hãy hỏi về các buổi tư vấn, đăng ký, hoặc bất kỳ vấn đề nào khác.
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbotInput" placeholder="Nhập câu hỏi...">
+            <button class="chatbot-send" id="chatbotSend">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-wrapper">
+        <iframe src="footer.html" style="width: 100%; border: none; overflow: hidden; display: block; height: 100%;"></iframe>
+    </div>
+
+    <!-- HLS.js for video streaming -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="data.js"></script>
+    <script>
+        // Video streaming
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('myVideo');
+            const src = videoConfig.src;
+
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(src);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = src;
+            }
+        });
+
+        // Render navigation cards
+        function renderNavCards() {
+            const grid = document.getElementById('navGrid');
+            grid.innerHTML = '';
+            navCards.forEach(card => {
+                const a = document.createElement('a');
+                a.href = card.href;
+                a.className = 'nav-card';
+                a.innerHTML = `
+                    <div class="nav-card-icon"><i class="${card.icon}"></i></div>
+                    <h3>${card.title}</h3>
+                    <p>${card.description}</p>
+                `;
+                grid.appendChild(a);
+            });
+        }
+
+        // Render notifications
+        function renderNotifications() {
+            const timeline = document.getElementById('notificationsTimeline');
+            timeline.innerHTML = '';
+            notifications.forEach(notif => {
+                const item = document.createElement('div');
+                item.className = 'notification-item';
+                item.innerHTML = `
+                    <div class="notification-content">
+                        <div class="notification-time">${notif.time}</div>
+                        <div class="notification-text">${notif.text}</div>
+                    </div>
+                `;
+                timeline.appendChild(item);
+            });
+        }
+
+        // Chatbot logic
+        const chatbotBtn = document.getElementById('chatbotBtn');
+        const chatbotWidget = document.getElementById('chatbotWidget');
+        const chatbotClose = document.getElementById('chatbotClose');
+        const chatbotInput = document.getElementById('chatbotInput');
+        const chatbotSend = document.getElementById('chatbotSend');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+
+        chatbotBtn.addEventListener('click', () => {
+            chatbotWidget.classList.toggle('active');
+        });
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotWidget.classList.remove('active');
+        });
+
+        function addMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = `chatbot-message ${type}`;
+            msg.innerHTML = `<div class="message-bubble ${type}">${text}</div>`;
+            chatbotMessages.appendChild(msg);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        chatbotSend.addEventListener('click', sendMessage);
+        chatbotInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const text = chatbotInput.value.trim();
+            if (!text) return;
+            addMessage(text, 'user');
+            chatbotInput.value = '';
+
+            setTimeout(() => {
+                addMessage("Tôi đang xử lý câu hỏi của bạn. Vui lòng chờ trong giây lát!", 'bot');
+            }, 800);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNavCards();
+            renderNotifications();
+        });
+    </script>
+</body>
+</html>

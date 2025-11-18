@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Sử Mở Buổi Tư Vấn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* === CSS giữ nguyên 99%, chỉ thêm một chút loading và fix nhỏ === */
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#e9ecef 100%);color:#2c3e50;line-height:1.6;min-height:100vh;padding-bottom:80px}
+        .footer-wrapper{position:fixed;bottom:0;left:0;width:100%;height:65px;z-index:1000;background:white;box-shadow:0 -2px 10px rgba(0,0,0,.1)}
+        main{max-width:1200px;margin:40px auto;padding:0 20px}
+        .page-title{font-size:32px;font-weight:700;color:#0388B4;margin-bottom:10px}
+        .filter-section{display:flex;gap:15px;margin-bottom:30px;flex-wrap:wrap}
+        .filter-btn{padding:10px 20px;border:2px solid #0388B4;background:#fff;color:#0388B4;border-radius:30px;cursor:pointer;font-weight:600;transition:all .3s}
+        .filter-btn.active,.filter-btn:hover{background:#0388B4;color:white;transform:translateY(-3px);box-shadow:0 8px 20px rgba(3,136,180,.3)}
+        .search-box{flex:1;min-width:250px}
+        .search-box input{width:100%;padding:12px 20px;border:2px solid #ddd;border-radius:30px;font-size:14px;outline:none;transition:all .3s}
+        .search-box input:focus{border-color:#0388B4;box-shadow:0 0 0 4px rgba(3,136,180,.1)}
+        .sessions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:25px;margin-top:20px}
+        .session-card{background:#fff;border-radius:12px;padding:25px;box-shadow:0 4px 20px rgba(0,0,0,.08);transition:all .4s;position:relative;overflow:hidden}
+        .session-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#0388B4,#00d4ff)}
+        .session-card.completed::before{background:linear-gradient(90deg,#27ae60,#2ecc71)}
+        .session-card:hover{transform:translateY(-10px);box-shadow:0 15px 35px rgba(0,0,0,.15)}
+        .session-title{font-size:19px;font-weight:700;color:#0388B4;margin-bottom:15px}
+        .status-badge{padding:6px 14px;border-radius:30px;font-size:11px;font-weight:700;text-transform:uppercase}
+        .status-badge.upcoming{background:rgba(3,136,180,.15);color:#0388B4}
+        .status-badge.completed{background:rgba(39,174,96,.15);color:#27ae60}
+        .info-row{display:flex;justify-content:space-between;font-size:14px;margin:8px 0}
+        .info-label{font-weight:600;color:#0388B4;min-width:100px}
+        .actions{display:flex;gap:12px;margin-top:20px}
+        .action-btn{flex:1;padding:12px;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;transition:all .3s}
+        .btn-download{background:linear-gradient(135deg,#0388B4,#00d4ff)}
+        .btn-cancel{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+        .btn-evaluate{background:linear-gradient(135deg,#27ae60,#2ecc71)}
+        .action-btn:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.2)}
+
+        /* Panel Tài liệu */
+        .documents-management{display:none;position:fixed;bottom:65px;left:0;right:0;background:white;border-top:4px solid #0388B4;padding:20px;box-shadow:0 -5px 20px rgba(0,0,0,.1);z-index:999;max-height:50vh;overflow-y:auto}
+        .documents-management.open{display:block}
+        .documents-management-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;font-size:18px;font-weight:600;color:#0388B4}
+        .documents-items-container{display:flex;flex-wrap:wrap;gap:12px}
+        .document-item-tag{display:flex;align-items:center;gap:10px;background:rgba(3,136,180,.1);border:1px solid #0388B4;border-radius:30px;padding:8px 14px;font-weight:500;color:#0388B4}
+        .delete-doc{background:none;border:none;color:#e74c3c;cursor:pointer;font-size:18px}
+        .add-document-btn{padding:10px 20px;background:#0388B4;color:white;border:none;border-radius:30px;cursor:pointer;font-weight:600}
+
+        /* Panel Danh sách sinh viên */
+        .student-list-panel{display:none;position:fixed;bottom:65px;left:0;right:0;background:white;border-top:4px solid #27ae60;padding:20px;box-shadow:0 -5px 20px rgba(0,0,0,.1);z-index:999;max-height:70vh;overflow-y:auto}
+        .student-list-panel.open{display:block}
+        .student-list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:18px;font-weight:600;color:#27ae60}
+        .student-table{width:100%;border-collapse:collapse}
+        .student-table th{background:rgba(3,136,180,.05);padding:12px 10px;text-align:left;color:#0388B4;font-weight:600;font-size:13px}
+        .student-table td{padding:12px 10px;border-bottom:1px solid #eee}
+        .student-status{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600}
+        .student-status.participated{background:rgba(39,174,96,.1);color:#27ae60}
+        .student-status.not-participated{background:rgba(231,76,60,.1);color:#e74c3c}
+        .btn-evaluate-student{padding:8px 16px;background:#27ae60;color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer}
+
+        /* Modal đánh giá */
+        .evaluation-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:center}
+        .evaluation-modal.open{display:flex}
+        .evaluation-form{background:white;border-radius:12px;padding:30px;width:90%;max-width:500px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+        .rating-options{display:flex;gap:10px;margin:20px 0}
+        .rating-btn{flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;background:white;cursor:pointer;transition:all .3s}
+        .rating-btn.selected{border-color:#27ae60;background:rgba(39,174,96,.1);color:#27ae60}
+        .form-actions{display:flex;gap:15px;margin-top:30px}
+        .btn-submit{flex:1;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+    </style>
+</head>
+<body>
+
+    <iframe src="header.html" style="width:100%;height:80px;border:none;display:block;"></iframe>
+
+    <main>
+        <h2 class="page-title">Lịch Sử Mở Buổi Tư Vấn</h2>
+        <p style="color:#7f8c8d;margin-bottom:30px">Quản lý tài liệu và đánh giá sinh viên</p>
+
+        <div class="filter-section">
+            <button class="filter-btn active" onclick="filterSessions('all')">Tất Cả</button>
+            <button class="filter-btn" onclick="filterSessions('upcoming')">Sắp Diễn Ra</button>
+            <button class="filter-btn" onclick="filterSessions('completed')">Đã Kết Thúc</button>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm theo tiêu đề..." onkeyup="searchSessions()">
+            </div>
+        </div>
+
+        <div class="sessions-grid" id="sessionsGrid">
+            <div style="grid-column:1/-1;text-align:center;padding:80px;color:#0388B4">
+                <i class="fas fa-spinner fa-spin" style="font-size:50px"></i><br><br>
+                Đang tải dữ liệu...
+            </div>
+        </div>
+    </main>
+
+    <!-- PANEL TÀI LIỆU – ĐÃ HOÀN CHỈNH -->
+    <div class="documents-management" id="documentsManagement">
+        <div class="documents-management-header">
+            <span><i class="fas fa-folder-open"></i> Quản Lý Tài Liệu Buổi Tư Vấn</span>
+            <button style="background:none;border:none;font-size:24px;cursor:pointer" onclick="closeDocumentsManagement()">×</button>
+        </div>
+        <div class="documents-items-container" id="documentsContainer"></div>
+        <button class="add-document-btn" onclick="addNewDocument()">+ Thêm tài liệu mới</button>
+    </div>
+
+    <!-- PANEL DANH SÁCH SINH VIÊN – ĐÃ HOÀN CHỈNH -->
+    <div class="student-list-panel" id="studentListPanel">
+        <div class="student-list-header">
+            <span><i class="fas fa-users"></i> Danh Sách Sinh Viên Tham Gia</span>
+            <button style="background:none;border:none;font-size:24px;cursor:pointer" onclick="closeStudentList()">×</button>
+        </div>
+        <table class="student-table">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>MSSV</th>
+                    <th>Họ và tên</th>
+                    <th>Tình trạng</th>
+                    <th>Đánh giá</th>
+                </tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- MODAL ĐÁNH GIÁ -->
+    <div class="evaluation-modal" id="evaluationModal">
+        <div class="evaluation-form">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                <h3 style="color:#0388B4">Đánh Giá Sinh Viên</h3>
+                <button style="background:none;border:none;font-size:28px;cursor:pointer" onclick="closeEvaluationForm()">×</button>
+            </div>
+            <div id="studentInfoDisplay" style="background:#f0f8ff;padding:15px;border-radius:8px;margin-bottom:20px"></div>
+            <form onsubmit="submitEvaluation(event)">
+                <label style="display:block;margin-bottom:10px;font-weight:600;color:#0388B4">Mức đánh giá</label>
+                <div class="rating-options">
+                    <button type="button" class="rating-btn" onclick="selectRating('Tốt')">Tốt</button>
+                    <button type="button" class="rating-btn" onclick="selectRating('Khá')">Khá</button>
+                    <button type="button" class="rating-btn" onclick="selectRating('Trung bình')">Trung bình</button>
+                </div>
+                <label style="display:block;margin:20px 0 10px;font-weight:600;color:#0388B4">Nhận xét chi tiết</label>
+                <textarea id="evaluationDetail" style="width:100%;min-height:100px;padding:12px;border:2px solid #ddd;border-radius:8px" required></textarea>
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">Lưu Đánh Giá</button>
+                    <button type="button" onclick="closeEvaluationForm()" style="flex:1;padding:12px;background:#ddd;border:none;border-radius:8px;cursor:pointer">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer-wrapper">
+        <iframe src="footer.html" style="width:100%;height:100%;border:none"></iframe>
+    </div>
+
+    <script src="data2.js"></script>
+    <script>
+        let currentSessionId = null;
+        let currentStudentId = null;
+
+        // Render danh sách buổi
+        async function renderSessions() {
+            const grid = document.getElementById('sessionsGrid');
+            try {
+                const sessions = await getSessionsData();
+                grid.innerHTML = '';
+
+                sessions.forEach(s => {
+                    const card = document.createElement('div');
+                    card.className = `session-card ${s.status === 'upcoming' ? 'upcoming-card' : 'completed'}`;
+                    card.dataset.filter = s.status;
+
+                    const actions = s.status === 'upcoming'
+                        ? `<button class="action-btn btn-download" onclick="openDocumentsManagement(${s.id})">Tài Liệu</button>
+                           <button class="action-btn btn-cancel" onclick="alert('Hủy buổi này?')">Hủy</button>`
+                        : `<button class="action-btn btn-download" onclick="openDocumentsManagement(${s.id})">Tài Liệu</button>
+                           <button class="action-btn btn-evaluate" onclick="openStudentList(${s.id})">Đánh Giá</button>`;
+
+                    card.innerHTML = `
+                        <div class="session-title">${s.title}</div>
+                        <span class="status-badge ${s.status}">${s.status === 'upcoming' ? 'Sắp Diễn Ra' : 'Đã Kết Thúc'}</span>
+                        <div class="info-row"><span class="info-label">Giảng viên:</span><span>${s.lecturer}</span></div>
+                        <div class="info-row"><span class="info-label">Ngày:</span><span>${s.date}</span></div>
+                        <div class="info-row"><span class="info-label">Thời gian:</span><span>${s.time}</span></div>
+                        <div class="info-row"><span class="info-label">Địa điểm:</span><span>${s.location}</span></div>
+                        <div class="info-row"><span class="info-label">Số lượng:</span><span>${s.students} sinh viên</span></div>
+                        <div class="actions">${actions}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (e) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:red">Lỗi tải dữ liệu!</div>'; }
+        }
+
+        // Tài liệu
+        async function openDocumentsManagement(id) {
+            currentSessionId = id;
+            const panel = document.getElementById('documentsManagement');
+            const container = document.getElementById('documentsContainer');
+            container.innerHTML = 'Đang tải...';
+            panel.classList.add('open');
+
+            const docs = await getDocumentsBySessionId(id);
+            container.innerHTML = '';
+            if (docs.length === 0) container.innerHTML = '<i>Chưa có tài liệu nào</i>';
+
+            docs.forEach((doc, i) => {
+                const type = doc.name.split('.').pop().toLowerCase();
+                const icon = type === 'pdf' ? 'fa-file-pdf' : type === 'docx' ? 'fa-file-word' : 
+                            type === 'pptx' ? 'fa-file-powerpoint' : type === 'xlsx' ? 'fa-file-excel' : 'fa-file';
+                const div = document.createElement('div');
+                div.className = 'document-item-tag';
+                div.innerHTML = `<i class="fas ${icon}" style="color:#e74c3c"></i> 
+                                 <span onclick="alert('Tải xuống: ${doc.name}')">${doc.name}</span>
+                                 <button class="delete-doc" onclick="if(confirm('Xóa?')){deleteDocument(${id},${i})}">×</button>`;
+                container.appendChild(div);
+            });
+        }
+        function closeDocumentsManagement() { document.getElementById('documentsManagement').classList.remove('open'); }
+        function addNewDocument() {
+            const name = prompt('Tên file (có đuôi .pdf, .docx, ...):');
+            if (name) {
+                documents[currentSessionId].push({name});
+                openDocumentsManagement(currentSessionId);
+            }
+        }
+        function deleteDocument(sid, idx) {
+            documents[sid].splice(idx, 1);
+            openDocumentsManagement(sid);
+        }
+
+        // Danh sách sinh viên + đánh giá
+        async function openStudentList(id) {
+            currentSessionId = id;
+            const panel = document.getElementById('studentListPanel');
+            const tbody = document.getElementById('studentTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Đang tải...</td></tr>';
+            panel.classList.add('open');
+
+            const students = await getStudentsBySessionId(id);
+            tbody.innerHTML = '';
+            students.forEach((s, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i+1}</td>
+                    <td>${s.mssv}</td>
+                    <td>${s.name}</td>
+                    <td><span class="student-status ${s.participated==='Có'?'participated':'not-participated'}">${s.participated==='Có'?'Tham gia':'Vắng'}</span></td>
+                    <td>${s.rating ? '<span style="color:green;font-weight:600">'+s.rating+'</span>' : '<button class="btn-evaluate-student" onclick="openEvaluationForm('+id+','+s.id+')">Đánh giá</button>'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        function closeStudentList() { document.getElementById('studentListPanel').classList.remove('open'); }
+
+        // Modal đánh giá
+        async function openEvaluationForm(sid, stuid) {
+            currentSessionId = sid; currentStudentId = stuid;
+            const students = await getStudentsBySessionId(sid);
+            const stu = students.find(x => x.id === stuid);
+
+            document.getElementById('studentInfoDisplay').innerHTML = `
+                <div><strong>MSSV:</strong> ${stu.mssv}</div>
+                <div><strong>Họ tên:</strong> ${stu.name}</div>
+                <div><strong>Tham gia:</strong> ${stu.participated}</div>
+            `;
+            document.getElementById('evaluationDetail').value = stu.comment || '';
+            document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('selected'));
+            if (stu.rating) document.querySelector(`.rating-btn[data-val="${stu.rating}"]`)?.classList.add('selected');
+
+            document.getElementById('evaluationModal').classList.add('open');
+        }
+        function closeEvaluationForm() { document.getElementById('evaluationModal').classList.remove('open'); }
+        function selectRating(val) {
+            document.querySelectorAll('.rating-btn').forEach(b => b.classList.toggle('selected', b.textContent === val));
+        }
+        async function submitEvaluation(e) {
+            e.preventDefault();
+            const rating = document.querySelector('.rating-btn.selected')?.textContent;
+            const comment = document.getElementById('evaluationDetail').value.trim();
+            if (!rating || !comment) return alert('Vui lòng chọn mức đánh giá và nhập nhận xét');
+
+            await saveStudentEvaluation(currentSessionId, currentStudentId, rating, comment);
+            alert('Đánh giá đã lưu thành công!');
+            closeEvaluationForm();
+            openStudentList(currentSessionId);
+        }
+
+        // Filter & Search
+        function filterSessions(t) {
+            document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.session-card').forEach(c => {
+                c.style.display = (t==='all' || c.dataset.filter===t) ? 'block' : 'none';
+            });
+        }
+        function searchSessions() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.session-card').forEach(c => {
+                c.style.display = c.querySelector('.session-title').textContent.toLowerCase().includes(term) ? 'block' : 'none';
+            });
+        }
+
+        // Khởi động
+        document.addEventListener('DOMContentLoaded', renderSessions);
+    </script>
+</body>
+</html>

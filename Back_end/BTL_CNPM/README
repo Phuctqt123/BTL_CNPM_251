@@ -1,0 +1,11 @@
+
+
+VS Code cần cài Extension:
+
+Extension Pack for Java
+
+
+
+Lệnh chạy: 
+Vô folder Back_end
+  .\mvnw spring-boot:run

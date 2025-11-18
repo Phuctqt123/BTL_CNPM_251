@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Danh sách sinh viên - Phòng Đào Tạo</title>
+
+  <!-- Font Awesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* === RESET & BASE === */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%; width: 100%; font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+      color: #333; overflow-x: hidden; display: flex; flex-direction: column;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(3, 136, 180, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(3, 136, 180, 0.03) 0%, transparent 50%);
+      pointer-events: none; z-index: -1;
+    }
+
+    .main-container { flex: 1; overflow-y: auto; padding-bottom: 65px; }
+    .footer-wrapper { position: fixed; bottom: 0; width: 100%; height: 65px; z-index: 1000; }
+
+    /* === ANIMATIONS === */
+    @keyframes slideInDown { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp     { from { opacity: 0; transform: translateY(20px); }  to { opacity: 1; transform: translateY(0); } }
+    @keyframes tableRowIn   { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes pulse        { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+    /* === HEADER === */
+    .page-header { text-align: center; padding: 40px 20px; animation: slideInDown 0.8s ease; }
+    .page-title { font-size: 36px; font-weight: 700; color: #0388B4; margin-bottom: 10px; letter-spacing: 1px; }
+    .page-subtitle { font-size: 16px; color: #666; font-weight: 500; }
+
+    /* === CONTROLS === */
+    .controls-section { max-width: 1200px; margin: 30px auto; padding: 0 20px; animation: fadeInUp 0.8s ease 0.2s both; }
+    .search-filter-box { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(3, 136, 180, 0.08); }
+
+    .search-box { flex: 1; min-width: 250px; position: relative; }
+    .search-box input { width: 100%; padding: 12px 16px 12px 40px; border: 2px solid #E8F4F8; border-radius: 10px; font-family: inherit; font-size: 14px; transition: all 0.3s ease; }
+    .search-box input:focus { outline: none; border-color: #0388B4; box-shadow: 0 0 0 3px rgba(3, 136, 180, 0.1); }
+    .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #0388B4; font-size: 16px; }
+
+    .date-filter { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border: 2px solid #E8F4F8; border-radius: 10px; background: white; font-size: 14px; color: #0388B4; min-width: 180px; }
+    .date-filter input { border: none; outline: none; font-family: inherit; color: #333; width: 100px; }
+
+    .sort-btn, .export-btn {
+      padding: 12px 20px; border: 2px solid #E8F4F8; background: white; border-radius: 10px;
+      cursor: pointer; font-weight: 600; color: #0388B4; font-size: 14px;
+      display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+    }
+
+    .sort-btn:hover, .export-btn:hover {
+      border-color: #0388B4; background: linear-gradient(135deg, #F5F7FA 0%, #E8F4F8 100%);
+      transform: translateY(-2px); box-shadow: 0 8px 20px rgba(3, 136, 180, 0.12);
+    }
+
+    /* TRẠNG THÁI SẮP XẾP */
+    .sort-btn.active {
+      background: #0388B4 !important;
+      color: white !important;
+      border-color: #0388B4 !important;
+    }
+
+    .sort-btn.active i {
+      transform: rotate(180deg);
+    }
+
+    /* === STATS === */
+    .stats-bar { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: flex; flex-wrap: wrap; gap: 30px; justify-content: space-between; animation: fadeInUp 0.8s ease 0.3s both; }
+    .stat-item { display: flex; align-items: center; gap: 15px; }
+    .stat-icon { width: 50px; height: 50px; border-radius: 12px; background: linear-gradient(135deg, rgba(3, 136, 180, 0.1), rgba(3, 136, 180, 0.05)); display: flex; align-items: center; justify-content: center; color: #0388B4; font-size: 24px; }
+    .stat-content h3 { font-size: 12px; color: #999; font-weight: 500; text-transform: uppercase; margin-bottom: 5px; }
+    .stat-content p { font-size: 22px; font-weight: 700; color: #0388B4; }
+
+    /* === TABLE === */
+    .table-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; animation: fadeInUp 0.8s ease 0.4s both; }
+    .table-wrapper { background: white; border-radius: 15px; box-shadow: 0 8px 24px rgba(3, 136, 180, 0.08); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead { background: linear-gradient(135deg, #0388B4 0%, #026689 100%); color: white; }
+    th { padding: 18px 16px; text-align: left; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+    th.score { text-align: center; }
+    td { padding: 16px; border-bottom: 1px solid #f0f0f0; transition: all 0.3s ease; }
+
+    tbody tr { animation: tableRowIn 0.5s ease backwards; }
+    tbody tr:nth-child(1) { animation-delay: 0s; }   tbody tr:nth-child(2) { animation-delay: 0.05s; }
+    tbody tr:nth-child(3) { animation-delay: 0.1s; }   tbody tr:nth-child(4) { animation-delay: 0.15s; }
+    tbody tr:nth-child(5) { animation-delay: 0.2s; }   tbody tr:nth-child(n+6) { animation-delay: 0.25s; }
+
+    tbody tr:hover { background: linear-gradient(90deg, rgba(3, 136, 180, 0.08), transparent); transform: scale(1.01); box-shadow: inset 8px 0 0 #0388B4; }
+
+    .stt { font-weight: 700; color: #0388B4; min-width: 40px; }
+    .mssv { color: #0388B4; font-weight: 600; }
+    .name { font-weight: 600; color: #333; }
+    .sessions { display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: 10px; background: linear-gradient(135deg, rgba(3, 136, 180, 0.1), rgba(3, 136, 180, 0.05)); color: #0388B4; font-weight: 700; font-size: 16px; animation: pulse 2s ease-in-out infinite; }
+    .total-score { font-weight: 700; color: #0388B4; text-align: center; }
+
+    /* === PAGINATION === */
+    .pagination-section { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; justify-content: center; align-items: center; gap: 10px; animation: fadeInUp 0.8s ease 0.5s both; }
+    .page-btn { width: 40px; height: 40px; border: 2px solid #E8F4F8; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #0388B4; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+    .page-btn:hover { border-color: #0388B4; background: linear-gradient(135deg, #F5F7FA 0%, #E8F4F8 100%); transform: translateY(-2px); }
+    .page-btn.active { background: #0388B4; color: white; border-color: #0388B4; }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+      .page-title { font-size: 28px; }
+      .search-filter-box { flex-direction: column; }
+      .search-box, .date-filter { min-width: 100%; }
+      .stats-bar { justify-content: center; gap: 20px; }
+      table { font-size: 12px; } th, td { padding: 12px 8px; }
+      .sessions { width: 40px; height: 40px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <iframe src="header.html" style="width:100%; border:none; overflow:hidden; display:block;"></iframe>
+
+  <div class="main-container">
+
+    <section class="page-header">
+      <h1 class="page-title">Danh sách sinh viên</h1>
+      <p class="page-subtitle">Quản lý và theo dõi thông tin sinh viên</p>
+    </section>
+
+    <section class="controls-section">
+      <div class="search-filter-box">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Tìm theo tên hoặc MSSV..." />
+        </div>
+
+        <div class="date-filter">
+          <i class="fas fa-calendar-alt"></i>
+          <label>Từ ngày:</label>
+          <input type="date" id="startDate" />
+        </div>
+
+        <!-- NÚT SẮP XẾP CÓ TRẠNG THÁI -->
+        <button class="sort-btn" id="sortBtn">
+          <i class="fas fa-arrow-up"></i> Sắp xếp theo điểm
+        </button>
+
+        <button class="export-btn" id="exportBtn">
+          <i class="fas fa-download"></i> Tải xuống
+        </button>
+      </div>
+    </section>
+
+    <section class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-content"><h3>Tổng sinh viên</h3><p id="totalStudents">0</p></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-content"><h3>Tham dự</h3><p id="activeStudents">0</p></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon"><i class="fas fa-calculator"></i></div>
+        <div class="stat-content"><h3>Điểm TB/buổi</h3><p id="avgScorePerSession">0</p></div>
+      </div>
+    </section>
+
+    <section class="table-container">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>MSSV</th>
+              <th>HỌ VÀ TÊN</th>
+              <th>SỐ BUỔI</th>
+              <th class="score">TỔNG ĐIỂM</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="pagination-section">
+      <button class="page-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+      <div id="pageNumbers"></div>
+      <button class="page-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+    </section>
+
+  </div>
+
+  <div class="footer-wrapper">
+    <iframe src="footer.html" style="width:100%; border:none; overflow:hidden; display:block; height:100%;"></iframe>
+  </div>
+
+  <script src="data4.js"></script>
+  <script>
+    // === BIẾN TOÀN CỤC ===
+    let studentData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let sortAscending = true;
+
+    // === HIỂN THỊ LOADING ===
+    function showLoading() {
+      document.getElementById('studentTableBody').innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align:center; padding:60px; color:#0388B4; font-size:1.1rem;">
+            <i class="fas fa-spinner fa-spin" style="font-size:28px; margin-right:10px;"></i>
+            Đang tải danh sách sinh viên...
+          </td>
+        </tr>`;
+      document.querySelectorAll('.stat-content p').forEach(el => el.textContent = '...');
+    }
+
+    // === HIỂN THỊ LỖI ===
+    function showError() {
+      document.getElementById('studentTableBody').innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align:center; padding:80px; color:#e74c3c;">
+            <i class="fas fa-exclamation-triangle" style="font-size:32px; margin-bottom:16px; display:block;"></i>
+            Không thể tải dữ liệu sinh viên.<br>Vui lòng thử lại sau!
+          </td>
+        </tr>`;
+    }
+
+    // === RENDER BẢNG ===
+    function renderTable() {
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const pageData = filteredData.slice(start, end);
+
+      const tbody = document.getElementById('studentTableBody');
+      tbody.innerHTML = pageData.map((s, idx) => `
+        <tr style="animation-delay: ${idx * 0.05}s;">
+          <td class="stt">${start + idx + 1}</td>
+          <td class="mssv">${s.mssv}</td>
+          <td class="name">${s.name}</td>
+          <td><div class="sessions">${s.sessions}</div></td>
+          <td class="total-score">${s.score}</td>
+        </tr>
+      `).join('');
+
+      renderPagination(filteredData.length);
+      updateStats(filteredData);
+    }
+
+    // === PHÂN TRANG ===
+    function renderPagination(totalItems) {
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      const container = document.getElementById('pageNumbers');
+      container.innerHTML = '';
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+        btn.textContent = i;
+        btn.onclick = () => {
+          currentPage = i;
+          renderTable();
+          document.querySelector('.table-wrapper').scrollIntoView({ behavior: 'smooth' });
+        };
+        container.appendChild(btn);
+      }
+    }
+
+    // === CẬP NHẬT THỐNG KÊ ===
+    function updateStats(data) {
+      const total = data.length;
+      const active = data.filter(s => s.sessions > 0).length;
+      const avg = data.length > 0 
+        ? (data.reduce((sum, s) => sum + s.score, 0) / data.reduce((sum, s) => sum + s.sessions, 0) || 1).toFixed(2)
+        : 0;
+
+      document.getElementById('totalStudents').textContent = total;
+      document.getElementById('activeStudents').textContent = active;
+      document.getElementById('avgScorePerSession').textContent = avg;
+    }
+
+    // === LỌC DỮ LIỆU ===
+    function filterData() {
+      const term = document.getElementById('searchInput').value.toLowerCase();
+      const start = document.getElementById('startDate').value;
+
+      let temp = [...studentData];
+
+      if (term) {
+        temp = temp.filter(s => 
+          s.name.toLowerCase().includes(term) || 
+          s.mssv.toString().includes(term)
+        );
+      }
+
+      // Giả lập lọc ngày (sẽ thay bằng backend thật sau)
+      if (start) {
+        const date = new Date(start);
+        temp = temp.filter(s => Math.random() > 0.3); // demo
+      }
+
+      filteredData = temp;
+      currentPage = 1;
+      renderTable();
+    }
+
+    // === SẮP XẾP THEO ĐIỂM ===
+    function toggleSort() {
+      sortAscending = !sortAscending;
+      filteredData.sort((a, b) => sortAscending ? a.score - b.score : b.score - a.score);
+      currentPage = 1;
+      renderTable();
+
+      const btn = document.getElementById('sortBtn');
+      const icon = btn.querySelector('i');
+      if (sortAscending) {
+        btn.classList.remove('active');
+        icon.className = 'fas fa-arrow-up';
+      } else {
+        btn.classList.add('active');
+        icon.className = 'fas fa-arrow-down';
+      }
+    }
+
+    // === XUẤT CSV ===
+    function exportData() {
+      const csv = [['STT','MSSV','Họ và tên','Số buổi','Tổng điểm']];
+      filteredData.forEach((s, i) => csv.push([i+1, s.mssv, s.name, s.sessions, s.score]));
+      const content = csv.map(r => r.join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `danh_sach_sinh_vien_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    // === GẮN SỰ KIỆN ===
+    function attachEventListeners() {
+      document.getElementById('searchInput').addEventListener('input', filterData);
+      document.getElementById('startDate').addEventListener('change', filterData);
+      document.getElementById('sortBtn').addEventListener('click', toggleSort);
+      document.getElementById('prevBtn').addEventListener('click', () => {
+        if (currentPage > 1) { currentPage--; renderTable(); scrollToTable(); }
+      });
+      document.getElementById('nextBtn').addEventListener('click', () => {
+        const pages = Math.ceil(filteredData.length / itemsPerPage);
+        if (currentPage < pages) { currentPage++; renderTable(); scrollToTable(); }
+      });
+      document.getElementById('exportBtn').addEventListener('click', exportData);
+    }
+
+    function scrollToTable() {
+      document.querySelector('.table-wrapper').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ================== GỌI API KHI LOAD TRANG ==================
+    document.addEventListener('DOMContentLoaded', async () => {
+      showLoading();
+
+      try {
+        studentData = await getStudentsData();  // Gọi API
+        filteredData = [...studentData];
+        renderTable();
+        attachEventListeners();
+      } catch (err) {
+        console.error("Lỗi tải danh sách sinh viên:", err);
+        showError();
+      }
+    });
+  </script>
+</body>
+</html>

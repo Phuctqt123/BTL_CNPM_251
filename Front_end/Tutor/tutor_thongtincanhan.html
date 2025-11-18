@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông Tin Cá Nhân</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f8fbff;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-container {
+      flex: 1;
+      padding: 20px 0 80px;
+    }
+
+    .footer-wrapper {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 65px;
+      z-index: 1000;
+      background: white;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      font-size: 18px;
+      color: #0388B4;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0388B4;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .profile-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(3, 136, 180, 0.08);
+      margin: 20px 20px;
+      animation: slideInUp 0.6s ease forwards;
+      opacity: 0;
+      border-top: 4px solid #0388B4;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .profile-section:nth-child(1) { animation-delay: 0.1s; }
+    .profile-section:nth-child(2) { animation-delay: 0.2s; }
+    .profile-section:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .profile-section:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(3, 136, 180, 0.2);
+      border-top-color: #026689;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0388B4;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #0388B4;
+      padding-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .section-title i {
+      margin-right: 10px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .info-item {
+      padding: 16px;
+      background: #f8fafb;
+      border-left: 4px solid #0388B4;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+      background: #e3f2fd;
+      transform: translateX(8px);
+      box-shadow: 0 6px 16px rgba(3, 136, 180, 0.15);
+      border-left-color: #026689;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: #666;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .info-value {
+      font-size: 16px;
+      color: #333;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .info-item:hover .info-value {
+      color: #0388B4;
+    }
+
+    @media (max-width: 768px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      .profile-section {
+        margin: 15px 15px;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <iframe src="header.html" style="width: 100%; height: 80px; border: none; display: block;"></iframe>
+
+  <!-- Main Content -->
+  <div class="main-container" id="mainContent">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Đang tải thông tin cá nhân...</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-wrapper">
+    <iframe src="footer.html" style="width: 100%; height: 100%; border: none;"></iframe>
+  </div>
+
+  <!-- Load data.js trước -->
+  <script src="data.js"></script>
+  <script>
+    // Hàm tạo item thông tin
+    function createInfoItem(label, value) {
+      const item = document.createElement('div');
+      item.className = 'info-item';
+      item.innerHTML = `
+        <div class="info-label">${label}</div>
+        <div class="info-value">${value || '—'}</div>
+      `;
+      return item;
+    }
+
+    // Hàm tạo một section
+    function createSection(title, iconClass, dataObj) {
+      const section = document.createElement('div');
+      section.className = 'profile-section';
+
+      const titleEl = document.createElement('h2');
+      titleEl.className = 'section-title';
+      titleEl.innerHTML = `<i class="${iconClass}"></i> ${title}`;
+
+      const grid = document.createElement('div');
+      grid.className = 'info-grid';
+
+      Object.entries(dataObj).forEach(([key, value]) => {
+        grid.appendChild(createInfoItem(key, value));
+      });
+
+      section.appendChild(titleEl);
+      section.appendChild(grid);
+      return section;
+    }
+
+    // Render toàn bộ profile
+    async function renderProfile() {
+      const container = document.getElementById('mainContent');
+
+      try {
+        // Gọi API giả lập
+        const data = await fetchProfileData(); // hoặc dùng getProfileDataSync() nếu muốn đồng bộ
+
+        // Xóa loading
+        container.innerHTML = '';
+
+        // Tạo các section
+        const personalSection = createSection(
+          'Thông Tin Cá Nhân',
+          'fas fa-user',
+          data.personalInfo
+        );
+        const contactSection = createSection(
+          'Thông Tin Liên Lạc',
+          'fas fa-phone-alt',
+          data.contactInfo
+        );
+        const residenceSection = createSection(
+          'Thông Tin Thường Trú',
+          'fas fa-home',
+          data.residenceInfo
+        );
+
+        // Thêm vào DOM
+        container.appendChild(personalSection);
+        container.appendChild(contactSection);
+        container.appendChild(residenceSection);
+
+      } catch (err) {
+        container.innerHTML = '<div style="text-align:center;color:red;padding:40px;">Lỗi tải dữ liệu. Vui lòng thử lại!</div>';
+        console.error(err);
+      }
+    }
+
+    // Chạy khi trang tải xong và data.js đã sẵn sàng
+    document.addEventListener('DOMContentLoaded', () => {
+      // Đảm bảo profileData đã được load từ data.js
+      if (typeof fetchProfileData === 'function') {
+        renderProfile();
+      } else {
+        // Nếu vì lý do nào đó data.js chưa load, thử lại sau 100ms
+        setTimeout(renderProfile, 100);
+      }
+    });
+  </script>
+</body>
+</html>

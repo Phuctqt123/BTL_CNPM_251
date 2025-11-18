@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Ký Buổi Tư Vấn - Sinh Viên</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    .header-wrapper { position: fixed; top: 0; width: 100%; z-index: 2000; }
+    .footer-wrapper { position: fixed; bottom: 0; width: 100%; height: 65px; z-index: 1000; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 120px 20px 80px 20px;
+      width: 100%;
+    }
+
+    .page-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #0388B4;
+      margin-bottom: 40px;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+
+    .filter-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .filter-container { display: flex; flex-direction: column; gap: 16px; }
+    .filter-group { display: flex; flex-direction: column; gap: 8px; }
+    .filter-title {
+      font-size: 0.95rem; font-weight: 600; color: #555;
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+
+    .filter-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+    .filter-btn {
+      padding: 10px 20px; border: 2px solid #E0E0E0; background: white;
+      border-radius: 20px; font-size: 0.95rem; font-weight: 500; color: #666;
+      cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;
+    }
+    .filter-btn:hover { border-color: #0388B4; color: #0388B4; transform: translateY(-2px); }
+    .filter-btn.active { background: #0388B4; border-color: #0388B4; color: white; box-shadow: 0 6px 20px rgba(3,136,180,0.3); }
+    .filter-btn.all-btn { border-color: #0388B4; color: #0388B4; }
+    .filter-btn.all-btn.active { background: #0388B4; color: white; }
+
+    .filter-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+    .filter-input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 8px; }
+    .filter-input-group label { font-size: 0.95rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.8px; }
+    .filter-input-group input, .filter-input-group select {
+      padding: 12px 16px; border: 2px solid #E0E0E0; border-radius: 20px;
+      font-size: 0.95rem; background: white; color: #666; transition: all 0.3s ease;
+    }
+    .filter-input-group input:focus, .filter-input-group select:focus {
+      outline: none; border-color: #0388B4; box-shadow: 0 0 0 3px rgba(3,136,180,0.1);
+    }
+
+    .events-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px; padding: 20px 0;
+    }
+
+    .event-card {
+      background: white; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: all 0.3s ease;
+      display: flex; flex-direction: column; height: 100%; position: relative;
+    }
+    .event-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #0388B4; }
+    .event-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 12px 30px rgba(3,136,180,0.25); }
+
+    .event-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    .event-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 16px; color: #0388B4; line-height: 1.4; }
+    .event-info { margin-bottom: 16px; }
+    .event-info-label { font-size: 0.85rem; color: #999; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .event-info-value { font-size: 1.05rem; color: #333; font-weight: 500; margin-top: 4px; }
+
+    .event-footer {
+      margin-top: auto; padding-top: 16px; border-top: 1px solid #eee;
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .btn {
+      padding: 14px 16px; border: none; border-radius: 8px; font-size: 1.05rem;
+      font-weight: 700; cursor: pointer; transition: all 0.3s ease;
+      text-transform: uppercase; letter-spacing: 0.8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      flex: 1; min-width: 120px;
+    }
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+
+    .btn-registered { background: #0388B4; color: white; }
+    .btn-registered:hover { background: #026494; }
+    .btn-signup { background: #7FD0E8; color: white; }
+    .btn-signup:hover { background: #5CBCD4; }
+    .btn-full { background: #E74C3C; color: white; cursor: not-allowed; }
+    .btn-full:hover { background: #C0392B; transform: none; }
+    .btn-ended { background: #95A5A6; color: white; cursor: not-allowed; }
+    .btn-ended:hover { background: #7F8C8D; transform: none; }
+    .btn-cancel { background: #E67E22; color: white; padding: 10px 16px; }
+    .btn-cancel:hover { background: #D35400; }
+
+    .event-card.hidden { display: none; }
+
+    @media (max-width: 768px) {
+      .page-title { font-size: 1.8rem; margin-bottom: 30px; }
+      .events-grid { grid-template-columns: 1fr; gap: 20px; }
+      .container { padding: 100px 20px 80px 20px; }
+      .filter-btn { padding: 8px 16px; font-size: 0.85rem; }
+      .filter-row { flex-direction: column; }
+      .filter-input-group { width: 100%; min-width: unset; }
+      .event-footer { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-wrapper">
+    <iframe src="header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
+  </div>
+
+  <div class="container">
+    <h1 class="page-title">Đăng Ký Buổi Tư Vấn</h1>
+
+    <div class="filter-section">
+      <div class="filter-container">
+        <div class="filter-row">
+          <div class="filter-input-group">
+            <label>Tên buổi tư vấn:</label>
+            <input type="text" id="eventNameFilter" placeholder="Tìm theo tên...">
+          </div>
+          <div class="filter-input-group">
+            <label>Tên giảng viên:</label>
+            <input type="text" id="instructorFilter" placeholder="Tìm theo giảng viên...">
+          </div>
+          <div class="filter-input-group">
+            <label>Cơ sở:</label>
+            <select id="locationFilter">
+              <option value="">Tất cả cơ sở</option>
+              <option value="cơ sở 1">Cơ sở 1</option>
+              <option value="cơ sở 2">Cơ sở 2</option>
+            </select>
+          </div>
+          <div class="filter-input-group">
+            <label>Buổi:</label>
+            <select id="timeFilter">
+              <option value="">Tất cả buổi</option>
+              <option value="sáng">Buổi sáng</option>
+              <option value="chiều">Buổi chiều</option>
+              <option value="tối">Buổi tối</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-title">Lọc theo trạng thái:</label>
+          <div class="filter-buttons">
+            <button class="filter-btn all-btn active" data-filter="all">Tất Cả</button>
+            <button class="filter-btn" data-filter="registered">Đã Đăng Ký</button>
+            <button class="filter-btn" data-filter="available">Có Thể Đăng Ký</button>
+            <button class="filter-btn" data-filter="full">Đủ Số Lượng</button>
+            <button class="filter-btn" data-filter="ended">Đã Kết Thúc</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="events-grid" id="eventsGrid"></div>
+  </div>
+
+  <div class="footer-wrapper">
+    <iframe src="footer.html" style="width: 100%; border: none; overflow: hidden; display: block; height: 100%;"></iframe>
+  </div>
+
+  <!-- Load dữ liệu -->
+  <script src="data3.js"></script>
+  <script>
+    const eventsGrid = document.getElementById('eventsGrid');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const eventNameFilter = document.getElementById('eventNameFilter');
+    const instructorFilter = document.getElementById('instructorFilter');
+    const locationFilter = document.getElementById('locationFilter');
+    const timeFilter = document.getElementById('timeFilter');
+
+    let eventsData = []; // sẽ được gán sau khi gọi API
+
+    // Hàm suy ra buổi từ giờ
+    function getSession(timeStr) {
+      const cleaned = timeStr.replace(/h/g, ':').trim();
+      const startHour = parseInt(cleaned.split('-')[0].split(':')[0], 10);
+      if (isNaN(startHour)) return 'chiều';
+      if (startHour >= 6 && startHour < 12) return 'sáng';
+      if (startHour >= 12 && startHour < 18) return 'chiều';
+      return 'tối';
+    }
+
+    function createEventCard(event) {
+      const card = document.createElement('div');
+      card.className = 'event-card';
+      card.dataset.status = event.status;
+      card.dataset.date = event.date;
+      card.dataset.title = event.title.toLowerCase();
+      card.dataset.instructor = event.instructor.toLowerCase();
+      card.dataset.location = event.location.toLowerCase();
+      card.dataset.time = event.time.toLowerCase();
+
+      const session = getSession(event.time);
+      card.dataset.session = session;
+
+      let footer = '';
+      if (event.status === 'registered') {
+        footer = `
+          <button class="btn btn-registered">Đã Đăng Ký</button>
+          <button class="btn btn-cancel" onclick="cancelRegistration('${event.id}')">Hủy Đăng Ký</button>
+        `;
+      } else if (event.status === 'available') {
+        footer = `<button class="btn btn-signup" onclick="signupEvent('${event.id}')">+ Đăng Ký</button>`;
+      } else if (event.status === 'full') {
+        footer = `<button class="btn btn-full" disabled>Đủ Số Lượng</button>`;
+      } else if (event.status === 'ended') {
+        footer = `<button class="btn btn-ended" disabled>Đã Kết Thúc</button>`;
+      }
+
+      card.innerHTML = `
+        <div class="event-body">
+          <div class="event-title">${event.title}</div>
+
+          <div class="event-info">
+            <div class="event-info-label">Giảng viên</div>
+            <div class="event-info-value">${event.instructor}</div>
+          </div>
+
+          <div class="event-info">
+            <div class="event-info-label">Ngày</div>
+            <div class="event-info-value">${event.date}</div>
+          </div>
+
+          <div class="event-info">
+            <div class="event-info-label">Địa điểm</div>
+            <div class="event-info-value">${event.location}</div>
+          </div>
+
+          <div class="event-info">
+            <div class="event-info-label">Thời gian</div>
+            <div class="event-info-value">
+              ${event.time} <small style="color:#666;">(Buổi ${session})</small>
+            </div>
+          </div>
+
+          <div class="event-footer">${footer}</div>
+        </div>
+      `;
+      return card;
+    }
+
+    function renderEvents() {
+      eventsGrid.innerHTML = '';
+      eventsData.forEach(event => eventsGrid.appendChild(createEventCard(event)));
+      filterEvents();
+    }
+
+    function filterEvents() {
+      const active = document.querySelector('.filter-btn.active').dataset.filter;
+      const name = eventNameFilter.value.trim().toLowerCase();
+      const inst = instructorFilter.value.trim().toLowerCase();
+      const loc = locationFilter.value.toLowerCase();
+      const sessionFilter = timeFilter.value.toLowerCase();
+
+      document.querySelectorAll('.event-card').forEach(card => {
+        const matches = 
+          (active === 'all' || card.dataset.status === active) &&
+          (!name || card.dataset.title.includes(name)) &&
+          (!inst || card.dataset.instructor.includes(inst)) &&
+          (!loc || card.dataset.location.includes(loc)) &&
+          (!sessionFilter || card.dataset.session === sessionFilter);
+
+        card.classList.toggle('hidden', !matches);
+      });
+    }
+
+    // Hàm hủy đăng ký (có thể mở rộng sau)
+    window.cancelRegistration = function(id) {
+      if (confirm('Bạn có chắc chắn muốn hủy đăng ký buổi tư vấn này?')) {
+        alert('Hủy đăng ký thành công! (ID: ' + id + ')');
+        // TODO: gọi API hủy thực tế ở đây
+        location.reload(); // tạm reload để demo
+      }
+    };
+
+    // Hàm đăng ký (demo)
+    window.signupEvent = function(id) {
+      if (confirm('Bạn có muốn đăng ký buổi tư vấn này không?')) {
+        alert('Đăng ký thành công! (ID: ' + id + ')');
+        location.reload();
+      }
+    };
+
+    // Sự kiện filter
+    filterButtons.forEach(btn => btn.addEventListener('click', () => {
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterEvents();
+    }));
+
+    [eventNameFilter, instructorFilter].forEach(el => el.addEventListener('input', filterEvents));
+    [locationFilter, timeFilter].forEach(el => el.addEventListener('change', filterEvents));
+
+    // ================== GỌI API KHI LOAD TRANG ==================
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Hiển thị loading (tùy chọn)
+      eventsGrid.innerHTML = '<p style="text-align:center; padding:40px; color:#666;">Đang tải danh sách buổi tư vấn...</p>';
+
+      try {
+        eventsData = await getEvents();  // <-- gọi hàm từ data3.js
+        renderEvents();
+      } catch (err) {
+        eventsGrid.innerHTML = '<p style="text-align:center; color:red;">Lỗi tải dữ liệu. Vui lòng thử lại sau.</p>';
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

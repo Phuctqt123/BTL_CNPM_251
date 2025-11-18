@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danh sách buổi tư vấn - Phòng Đào Tạo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; width: 100%; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+      overflow-x: hidden; color: #333; position: relative; display: flex; flex-direction: column;
+    }
+    body::before {
+      content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(3, 136, 180, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(3, 136, 180, 0.03) 0%, transparent 50%);
+      pointer-events: none; z-index: -1;
+    }
+    .main-container { flex: 1; overflow-y: auto; padding-bottom: 65px; }
+    .footer-wrapper { position: fixed; bottom: 0; width: 100%; height: 65px; z-index: 1000; }
+
+    @keyframes slideInDown { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes cardSlideIn { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .page-header { background: white; padding: 25px 40px; box-shadow: 0 2px 12px rgba(3, 136, 180, 0.08); animation: slideInDown 0.6s ease; position: sticky; top: 0; z-index: 100; }
+    .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .header-left { display: flex; gap: 15px; align-items: center; flex: 1; }
+    .filter-group { display: flex; gap: 10px; align-items: center; }
+    .filter-btn { background: white; border: 2px solid #E8F4F8; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; color: #0388B4; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; }
+    .filter-btn:hover, .filter-btn.active { background: #0388B4; color: white; border-color: #0388B4; transform: translateY(-2px); box-shadow: 0 8px 16px rgba(3, 136, 180, 0.2); }
+    .search-box { flex: 1; max-width: 300px; position: relative; }
+    .search-box input { width: 100%; padding: 10px 16px; border: 2px solid #E8F4F8; border-radius: 8px; font-size: 14px; transition: all 0.3s ease; font-family: 'Poppins', sans-serif; }
+    .search-box input:focus { outline: none; border-color: #0388B4; box-shadow: 0 0 10px rgba(3, 136, 180, 0.15); }
+    .search-box i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #0388B4; pointer-events: none; }
+
+    .page-title { text-align: center; padding: 30px 20px; animation: slideInDown 0.8s ease 0.2s both; }
+    .page-title h1 { font-size: 32px; color: #0388B4; margin-bottom: 8px; font-weight: 700; }
+    .page-title p { color: #888; font-size: 14px; }
+
+    .events-container { max-width: 1400px; margin: 40px auto; padding: 0 20px 60px; }
+    .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }
+
+    .event-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 16px rgba(3, 136, 180, 0.08); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); animation: cardSlideIn 0.6s ease backwards; position: relative; overflow: hidden; border: 2px solid transparent; }
+    .event-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #0388B4, transparent); transition: all 0.6s ease; }
+    .event-card:hover { transform: translateY(-12px) scale(1.02); box-shadow: 0 20px 40px rgba(3, 136, 180, 0.2); border-color: #0388B4; }
+    .event-card:hover::before { left: 100%; }
+
+    .event-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .event-badge.consulting { background: rgba(3, 136, 180, 0.15); color: #0388B4; }
+    .event-badge.support { background: rgba(76, 175, 80, 0.15); color: #4CAF50; }
+    .event-badge.course { background: rgba(255, 152, 0, 0.15); color: #FF9800; }
+
+    .event-name { font-size: 18px; font-weight: 700; color: #0388B4; margin-bottom: 16px; line-height: 1.4; min-height: 50px; }
+    .event-info { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; padding: 16px 0; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; }
+    .info-row { display: flex; gap: 12px; font-size: 13px; }
+    .info-icon { color: #0388B4; min-width: 20px; text-align: center; font-weight: 600; }
+    .info-text { color: #555; flex: 1; }
+    .info-text strong { color: #0388B4; font-weight: 700; }
+
+    .detail-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #0388B4 0%, #026689 100%); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .detail-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(3, 136, 180, 0.3); letter-spacing: 1px; }
+
+    .empty-state { text-align: center; padding: 60px 20px; animation: fadeInUp 0.6s ease; }
+    .empty-icon { font-size: 60px; color: #0388B4; margin-bottom: 16px; opacity: 0.5; }
+    .empty-text { color: #888; font-size: 16px; }
+
+    @media (max-width: 768px) {
+      .header-content { flex-direction: column; align-items: stretch; }
+      .header-left { flex-direction: column; }
+      .events-grid { grid-template-columns: 1fr; }
+      .page-title h1 { font-size: 24px; }
+      .page-header { padding: 15px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <iframe src="header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
+
+  <div class="main-container">
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-left">
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="consulting">Tư vấn</button>
+            <button class="filter-btn" data-filter="support">Hỗ trợ</button>
+            <button class="filter-btn" data-filter="course">Khóa học</button>
+          </div>
+          <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Tìm kiếm sự kiện..." onkeyup="searchEvents()">
+            <i class="fas fa-search"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-title">
+      <h1>Danh sách buổi tư vấn</h1>
+      <p>Tìm hiểu các buổi tư vấn và tham gia ngay</p>
+    </div>
+
+    <div class="events-container">
+      <div class="events-grid" id="eventsGrid">
+        <!-- Events được render bằng JS -->
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-wrapper">
+    <iframe src="footer.html" style="width: 100%; border: none; overflow: hidden; display: block; height: 100%;"></iframe>
+  </div>
+
+  <!-- Load dữ liệu -->
+  <script src="data3.js"></script>
+  <script>
+    let eventsData = [];
+
+    // === HIỂN THỊ LOADING ===
+    function showLoading() {
+      document.getElementById('eventsGrid').innerHTML = `
+        <div style="grid-column: 1/-1; text-align:center; padding:80px 20px; color:#0388B4; font-size:1.2rem;">
+          <i class="fas fa-spinner fa-spin" style="font-size:40px; margin-bottom:20px; display:block;"></i>
+          Đang tải danh sách buổi tư vấn...
+        </div>`;
+    }
+
+    // === HIỂN THỊ LỖI ===
+    function showError() {
+      document.getElementById('eventsGrid').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="empty-text" style="color:#e74c3c;">
+            Không thể tải dữ liệu.<br>Vui lòng thử lại sau!
+          </div>
+        </div>`;
+    }
+
+    // === PHÂN LOẠI THEO TÊN (giữ nguyên logic cũ + mở rộng) ===
+    function getCategory(title) {
+      const lower = title.toLowerCase();
+      if (lower.includes('hướng dẫn') || lower.includes('btl') || lower.includes('đồ án') || lower.includes('cnpm')) 
+        return 'consulting';
+      if (lower.includes('hỗ trợ') || lower.includes('ôn thi') || lower.includes('học bổng'))
+        return 'support';
+      return 'course';
+    }
+
+    function getBadgeInfo(title) {
+      const cat = getCategory(title);
+      return {
+        consulting: { class: 'consulting', text: 'TƯ VẤN' },
+        support:    { class: 'support',    text: 'HỖ TRỢ' },
+        course:     { class: 'course',     text: 'KHÓA HỌC' }
+      }[cat];
+    }
+
+    // === RENDER SỰ KIỆN ===
+    function renderEvents(events) {
+      const grid = document.getElementById('eventsGrid');
+      grid.innerHTML = '';
+
+      if (events.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-calendar-times"></i></div>
+            <div class="empty-text">Không tìm thấy buổi tư vấn nào</div>
+          </div>`;
+        return;
+      }
+
+      events.forEach((event, index) => {
+        const badge = getBadgeInfo(event.title);
+        const card = document.createElement('div');
+        card.className = 'event-card';
+        card.dataset.category = getCategory(event.title);
+        card.style.animationDelay = `${index * 0.1}s`;
+
+        card.innerHTML = `
+          <div class="event-badge ${badge.class}">${badge.text}</div>
+          <div class="event-name">${event.title}</div>
+          <div class="event-info">
+            <div class="info-row"><div class="info-icon"><i class="fas fa-user-tie"></i></div><div class="info-text">Giảng viên: <strong>${event.instructor}</strong></div></div>
+            <div class="info-row"><div class="info-icon"><i class="fas fa-calendar"></i></div><div class="info-text">Ngày: <strong>${event.date}</strong></div></div>
+            <div class="info-row"><div class="info-icon"><i class="fas fa-clock"></i></div><div class="info-text">Giờ: <strong>${event.time}</strong></div></div>
+            <div class="info-row"><div class="info-icon"><i class="fas fa-map-marker-alt"></i></div><div class="info-text">Địa điểm: <strong>${event.location}</strong></div></div>
+          </div>
+          <button class="detail-btn" onclick="viewDetails('${event.id}')">
+            Xem chi tiết <i class="fas fa-arrow-right"></i>
+          </button>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // === LỌC THEO NÚT ===
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const category = this.dataset.filter;
+        const filtered = category === 'all' 
+          ? eventsData 
+          : eventsData.filter(e => getCategory(e.title) === category);
+        renderEvents(filtered);
+      });
+    });
+
+    // === TÌM KIẾM ===
+    function searchEvents() {
+      const term = document.getElementById('searchInput').value.toLowerCase().trim();
+      const filtered = eventsData.filter(e => 
+        e.title.toLowerCase().includes(term) || 
+        e.instructor.toLowerCase().includes(term) ||
+        e.location.toLowerCase().includes(term) ||
+        e.date.includes(term)
+      );
+      renderEvents(filtered);
+    }
+
+    // === XEM CHI TIẾT ===
+    function viewDetails(id) {
+      window.location.href = `PDT_Xemthongtinchitietbuoituvan.html?id=${id}`;
+    }
+
+    // === GỌI API KHI LOAD TRANG ===
+    document.addEventListener('DOMContentLoaded', async () => {
+      showLoading();
+
+      try {
+        eventsData = await getConsultingEvents();  // Gọi API
+        renderEvents(eventsData);
+
+        // Gắn lại sự kiện tìm kiếm sau khi load xong
+        document.getElementById('searchInput').addEventListener('input', searchEvents);
+
+      } catch (err) {
+        console.error("Lỗi tải danh sách buổi tư vấn:", err);
+        showError();
+      }
+    });
+  </script>
+</body>
+</html>

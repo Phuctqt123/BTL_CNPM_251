@@ -1,0 +1,3 @@
+git add folder1 folder2 folder3
+git commit -m "Update selected folders"
+git push

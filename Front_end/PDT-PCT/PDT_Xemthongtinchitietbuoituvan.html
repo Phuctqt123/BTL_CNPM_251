@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết buổi tư vấn - Phòng Đào Tạo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+      overflow-x: hidden;
+      color: #333;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(3, 136, 180, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(3, 136, 180, 0.03) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .main-container {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 65px;
+    }
+
+    .footer-wrapper {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 65px;
+      z-index: 1000;
+    }
+
+    /* Animations */
+    @keyframes slideInDown {
+      from { opacity: 0; transform: translateY(-50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes documentSlideIn {
+      from { opacity: 0; transform: scale(0.95) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Header section */
+    .page-header {
+      background: white;
+      padding: 20px 40px;
+      box-shadow: 0 2px 12px rgba(3, 136, 180, 0.08);
+      animation: slideInDown 0.6s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      border: 2px solid #E8F4F8;
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: #0388B4;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .back-btn:hover {
+      background: #E8F4F8;
+      transform: translateX(-5px);
+    }
+
+    /* Content section */
+    .content-wrapper {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px 60px;
+      width: 100%;
+    }
+
+    .event-info-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(3, 136, 180, 0.1);
+      margin-bottom: 30px;
+      animation: fadeInUp 0.6s ease;
+      border-left: 6px solid #0388B4;
+    }
+
+    .event-info-card h1 {
+      font-size: 32px;
+      color: #0388B4;
+      margin-bottom: 20px;
+    }
+
+    .event-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .detail-item {
+      padding: 16px;
+      background: linear-gradient(135deg, #E8F4F8 0%, #F0F8FB 100%);
+      border-radius: 12px;
+      animation: fadeInUp 0.6s ease backwards;
+    }
+
+    .detail-item:nth-child(1) { animation-delay: 0.1s; }
+    .detail-item:nth-child(2) { animation-delay: 0.2s; }
+    .detail-item:nth-child(3) { animation-delay: 0.3s; }
+    .detail-item:nth-child(4) { animation-delay: 0.4s; }
+    .detail-item:nth-child(5) { animation-delay: 0.5s; }
+
+    .detail-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0388B4;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .documents-section {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(3, 136, 180, 0.1);
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0388B4;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title i {
+      font-size: 28px;
+    }
+
+    .documents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .document-item {
+      padding: 20px;
+      background: linear-gradient(135deg, #F5F7FA 0%, #ffffff 100%);
+      border-radius: 12px;
+      text-align: center;
+      border: 2px solid #E8F4F8;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      animation: documentSlideIn 0.6s ease backwards;
+    }
+
+    .document-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(3, 136, 180, 0.15);
+      border-color: #0388B4;
+      background: linear-gradient(135deg, #E8F4F8 0%, #F0F8FB 100%);
+    }
+
+    .document-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .document-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      word-break: break-word;
+      margin-bottom: 8px;
+    }
+
+    .document-type {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* MÀU ICON THEO LOẠI FILE */
+    .document-item.pdf .document-icon { color: #D32F2F; }
+    .document-item.docx .document-icon { color: #1976D2; }
+    .document-item.pptx .document-icon { color: #E65100; }
+    .document-item.xlsx .document-icon { color: #1B5E20; }
+    .document-item.zip .document-icon { color: #7B1FA2; }
+    .document-item.image .document-icon { color: #7C4DFF; }
+    .document-item.video .document-icon { color: #C2185B; }
+    .document-item.txt .document-icon { color: #455A64; }
+    .document-item.folder .document-icon { color: #FF9800; }
+
+    .action-section {
+      margin-top: 40px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: none;
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(135deg, #0388B4 0%, #026689 100%);
+      color: white;
+    }
+
+    .action-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(3, 136, 180, 0.3);
+    }
+
+    .action-btn.secondary {
+      background: white;
+      color: #0388B4;
+      border: 2px solid #0388B4;
+    }
+
+    .action-btn.secondary:hover {
+      background: #E8F4F8;
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .event-info-card {
+        padding: 25px;
+      }
+
+      .event-info-card h1 {
+        font-size: 24px;
+      }
+
+      .documents-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .event-details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-section {
+        flex-direction: column;
+      }
+
+      .action-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <iframe src="header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
+
+  <div class="main-container">
+    <div class="content-wrapper">
+      <!-- Event information card -->
+      <div class="event-info-card">
+        <h1 id="event-title"></h1>
+        
+        <div class="event-details-grid" id="event-details">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Documents section -->
+      <div class="documents-section">
+        <h2 class="section-title">
+          <i class="fas fa-folder"></i> Tài liệu
+        </h2>
+
+        <div class="documents-grid" id="documents-grid">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div class="action-section">
+          <button class="action-btn primary" id="download-all">
+            <i class="fas fa-download"></i> Tải xuống tất cả
+          </button>
+          <button class="action-btn secondary" id="share-btn">
+            <i class="fas fa-share-alt"></i> Chia sẻ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-wrapper">
+    <iframe src="footer.html" style="width: 100%; border: none; overflow: hidden; display: block; height: 100%;"></iframe>
+  </div>
+
+  <!-- Import data -->
+  <script src="data2.js"></script>
+  <script>
+    // Lấy ID từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('id') || 'e1'; // mặc định e1 nếu không có
+
+    // === HIỂN THỊ LOADING ===
+    function showLoading() {
+      document.getElementById('event-title').innerHTML = `
+        <i class="fas fa-spinner fa-spin" style="margin-right:12px;"></i> Đang tải thông tin buổi tư vấn...`;
+      document.getElementById('event-details').innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:60px; color:#0388B4;">
+          <i class="fas fa-circle-notch fa-spin fa-3x"></i>
+        </div>`;
+      document.getElementById('documents-grid').innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:60px; color:#95a5a6;">
+          <i class="fas fa-folder-open fa-3x" style="margin-bottom:16px; opacity:0.5;"></i><br>
+          Đang tải tài liệu...
+        </div>`;
+    }
+
+    // === HIỂN THỊ LỖI ===
+    function showError(message = "Không tìm thấy buổi tư vấn này.") {
+      document.querySelector('.content-wrapper').innerHTML = `
+        <div style="text-align:center; padding:100px 20px; color:#e74c3c;">
+          <i class="fas fa-exclamation-triangle fa-4x" style="margin-bottom:20px; opacity:0.7;"></i>
+          <h2>${message}</h2>
+          <p style="margin-top:16px;">
+            <a href="PDT_Xemdstuvan.html" style="color:#0388B4; text-decoration:underline;">← Quay lại danh sách</a>
+          </p>
+        </div>`;
+    }
+
+    // === RENDER CHI TIẾT ===
+    function renderEventDetails(details) {
+      const container = document.getElementById('event-details');
+      container.innerHTML = '';
+      details.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'detail-item';
+        div.style.animationDelay = `${i * 0.1}s`;
+        div.innerHTML = `
+          <div class="detail-label"><i class="${item.icon}"></i> ${item.label}</div>
+          <div class="detail-value">${item.value}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // === RENDER TÀI LIỆU ===
+    function renderDocuments(docs) {
+      const container = document.getElementById('documents-grid');
+      container.innerHTML = '';
+      if (docs.length === 0) {
+        container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#95a5a6; padding:40px;">Chưa có tài liệu nào.</div>`;
+        return;
+      }
+      docs.forEach((doc, i) => {
+        const { type, icon } = getFileInfo(doc.name);
+        const isFolder = doc.isFolder || type === 'folder';
+        const div = document.createElement('div');
+        div.className = `document-item ${isFolder ? 'folder' : type}`;
+        div.style.animationDelay = `${i * 0.08}s`;
+        div.innerHTML = `
+          <div class="document-icon"><i class="${icon}"></i></div>
+          <div class="document-name">${doc.name}</div>
+          <div class="document-type">${isFolder ? 'Thư mục' : getFileTypeName(type)}</div>
+        `;
+        div.addEventListener('click', () => {
+          alert(`Mở: ${doc.name}\n(Tính năng tải file sẽ tích hợp sau)`);
+        });
+        container.appendChild(div);
+      });
+    }
+
+    // === NHẬN DIỆN FILE ===
+    function getFileInfo(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const isFolder = !ext || ext === filename;
+      if (isFolder) return { type: 'folder', icon: 'fas fa-folder' };
+
+      const map = {
+        pdf: 'fas fa-file-pdf', docx: 'fas fa-file-word', doc: 'fas fa-file-word',
+        pptx: 'fas fa-file-powerpoint', ppt: 'fas fa-file-powerpoint',
+        xlsx: 'fas fa-file-excel', xls: 'fas fa-file-excel',
+        zip: 'fas fa-file-archive', rar: 'fas fa-file-archive',
+        jpg: 'fas fa-file-image', jpeg: 'fas fa-file-image', png: 'fas fa-file-image', gif: 'fas fa-file-image',
+        mp4: 'fas fa-file-video', mov: 'fas fa-file-video',
+        txt: 'fas fa-file-lines', ipynb: 'fas fa-file-code'
+      };
+      const icon = map[ext] || 'fas fa-file';
+      return { type: ext, icon };
+    }
+
+    function getFileTypeName(type) {
+      const names = { pdf: 'PDF', docx: 'Word', pptx: 'PowerPoint', xlsx: 'Excel', zip: 'Nén', image: 'Hình ảnh', video: 'Video', txt: 'Text', ipynb: 'Notebook' };
+      return names[type] || 'File';
+    }
+
+    // === GỌI API THEO ID ===
+    document.addEventListener('DOMContentLoaded', async () => {
+      showLoading();
+
+      try {
+        const eventData = await getEventDetailById(eventId);
+
+        // Render khi có dữ liệu
+        document.getElementById('event-title').textContent = eventData.title;
+        renderEventDetails(eventData.details);
+        renderDocuments(eventData.documents);
+
+        // Nút Tải xuống tất cả
+        document.getElementById('download-all').onclick = () => {
+          alert(`Đã bắt đầu tải ${eventData.documents.length} tài liệu...\n(Sẽ tích hợp ZIP sau)`);
+        };
+
+        // Nút Chia sẻ
+        document.getElementById('share-btn').onclick = () => {
+          if (navigator.share) {
+            navigator.share({
+              title: eventData.title,
+              text: 'Chi tiết buổi tư vấn HCMUT_TUTOR',
+              url: window.location.href
+            });
+          } else {
+            prompt('Sao chép link:', window.location.href);
+          }
+        };
+
+      } catch (err) {
+        console.error("Lỗi:", err);
+        showError(err.message || "Buổi tư vấn không tồn tại hoặc đã bị xóa.");
+      }
+    });
+  </script>
+</body>
+</html>
