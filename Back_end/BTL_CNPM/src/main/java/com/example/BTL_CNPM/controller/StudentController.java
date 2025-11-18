@@ -20,7 +20,13 @@ public class StudentController {
         data.put("age", 20);
         return data;
     }
-
+    @GetMapping("/info2")
+    public Map<String, Object> getInfo2() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", "Phúc");
+        data.put("age", 20);
+        return data;
+    }
     @PostMapping("/add")
     public Map<String, Object> add(@RequestBody Map<String, Object> body) {
         Map<String, Object> data = new HashMap<>();
