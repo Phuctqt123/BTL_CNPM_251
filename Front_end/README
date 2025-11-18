@@ -1,1 +1,10 @@
-abcd
+Khởi tạo repo Git (nếu chưa có)
+git init
+
+
+git remote add origin https://github.com/Phuctqt123/BTL_CNPM_251.git
+Nếu repo đã có từ trước nhưng muốn đổi remote:
+git remote set-url origin https://github.com/Phuctqt123/BTL_CNPM_251.git
+
+git add .
+git commit -m "Initial commit"

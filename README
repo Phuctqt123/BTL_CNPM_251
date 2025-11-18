@@ -1,23 +1,10 @@
-Khởi tạo repo Git (nếu chưa có)
-git init
-
-
-git remote add origin https://github.com/Phuctqt123/BTL_CNPM_251.git
-Nếu repo đã có từ trước nhưng muốn đổi remote:
-git remote set-url origin https://github.com/Phuctqt123/BTL_CNPM_251.git
-
-git add .
-git commit -m "Initial commit"
-
-
-Push lên GitHub
-
-git branch -M main
-git push -u origin main
+Lệnh lấy dự án về folder hiện tại:
+git clone https://github.com/Phuctqt123/BTL_CNPM_251
 
 
 
+Cách commit, chỉ commit những folder hoặc file mình code:
 
-git add folder1 folder2 folder3
-git commit -m "Update selected folders"
+git add Back_end/BTL_CNPM/src/main/java/com/example/BTL_CNPM/controller
+git commit -m "Update folder controller - Phuc"
 git push
