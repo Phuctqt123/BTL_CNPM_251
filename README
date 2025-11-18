@@ -8,3 +8,7 @@ Cách commit, chỉ commit những folder hoặc file mình code:
 git add Back_end/BTL_CNPM/src/main/java/com/example/BTL_CNPM/controller
 git commit -m "Update folder controller - Phuc"
 git push
+
+
+Cập nhật những thay đổi từ git qua dự án trên máy:
+git pull origin main
