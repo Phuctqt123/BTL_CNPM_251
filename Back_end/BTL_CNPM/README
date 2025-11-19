@@ -7,5 +7,5 @@ Extension Pack for Java
 
 
 Lệnh chạy: 
-Vô folder Back_end
+Vô folder Back_end/BTL_CNPM
   .\mvnw spring-boot:run
