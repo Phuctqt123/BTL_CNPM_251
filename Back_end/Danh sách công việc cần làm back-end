@@ -1,0 +1,32 @@
+Hiện thực từ lớp Controller -> Service -> Domain
+                            ->Data
+Lớp trên cần gì thì yêu cầu xuống lớp dưới hiện thực
+
+Thiết kế các API sau:
+Tutor:
+1.API lấy thông tin cá nhân Tutor 
+2.API tạo buổi tư vấn
+3.API lấy danh sách lịch sử 
+4.API xem tài liệu của 1 buổi tư vấn
+5.API xóa 1 tài liệu
+6.API thêm 1 tài liệu
+7.API Hủy 1 buổi tư vấn
+8.API Đánh giá
+
+
+Student:
+9.API lấy thông báo chung trên trang chủ
+10.API lấy thông tin cá nhân Sinh viên
+11.API lấy danh sách đăng ký buổi tư vấn
+12.API đăng ký buổi tư vấn
+13.API lấy danh sách lịch sử 
+13.API xem tài liệu của 1 buổi tư vấn
+14.API Hủy 1 buổi tư vấn
+15.API đánh giá buổi tư vấn
+
+PDT:
+
+16.API lấy thông tin trang chủ
+17.API lấy danh sách sinh viên
+18.API lấy danh sách buổi tư vấn
+19.API Lấy chi tiết buổi tư vấn

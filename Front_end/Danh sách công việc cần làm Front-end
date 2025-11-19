@@ -1,0 +1,5 @@
+Front-end: Nhận, chuẩn hóa định dạng 19 API từ back-end để hiển thị giao diện 
+
+Data: 
+- Tạo SQL từ EERD
+- Tạo các hàm từ phía Controller yêu cầu
