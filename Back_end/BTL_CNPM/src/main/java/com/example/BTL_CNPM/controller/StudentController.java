@@ -25,6 +25,14 @@ public class StudentController {
         return data;
     }
 
+
+    @GetMapping("/abcde")
+    public String getNotifications2() {
+
+        String usersString = Database.apiStudentGetHistory("SV001");
+
+        return usersString;   // ✔ OK
+    }
     // 10. Lấy thông tin cá nhân Sinh viên
     @GetMapping("/profile")
     public Map<String, Object> getStudentProfile() {
