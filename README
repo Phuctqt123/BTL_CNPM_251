@@ -12,3 +12,17 @@ git push
 
 Cập nhật những thay đổi từ git qua dự án trên máy:
 git pull origin main
+
+
+điều kiện:
+
+-tải java 
+-Tải cấu hình node.js
+-Tải các cấu hình cho spring boot
+-Tải thư viện embedding AI: 
++pip install torch torchvision torchaudio
+# Cài đặt thư viện Sentence-Transformers (mặc định)
+pip install sentence-transformers
+
+# Cài đặt PyVi để tách từ tiếng Việt (bắt buộc cho mô hình tiếng Việt)
+pip install pyvi
