@@ -38,7 +38,7 @@ public class PdtController {
 
     // 19. Lấy chi tiết 1 buổi tư vấn
     @GetMapping("/session/{sessionId}")
-    public Map<String, Object> getSessionDetail(@PathVariable String sessionId) {
+    public Map<String, Object> getSessionDetail(@PathVariable int sessionId) {
         PDT_PCT_Service service = new PDT_PCT_Service();
         return service.PdtSessionDetail(sessionId);
     }
