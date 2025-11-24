@@ -1,10 +1,6 @@
 package com.example.BTL_CNPM.Service;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-
-import com.example.BTL_CNPM.domain.Buoi_tu_van;
-import com.example.BTL_CNPM.domain.SinhVien;
 // Giả định SinhVien và Buoi_tu_van đã được định nghĩa
 
 /**
@@ -13,20 +9,24 @@ import com.example.BTL_CNPM.domain.SinhVien;
 public class StudentService {
     
     // 1. get_info
+    // làm mẫu để chạy maven thử
     public Map<String, Object> get_info(String id) {
-        
+        return new HashMap<>();  // trả về map rỗng
     }
 
     // 2. get_dsbuoituvan
+    // làm mẫu để chạy maven thử
     public Map<String, Object> get_dsbuoituvan(String id) {
-        
+        return new HashMap<>();  // trả về map rỗng
     }
-    // 2. get_dsbuoituvan_lichsu
+    // 3. get_dsbuoituvan_lichsu
+    // làm mẫu để chạy maven thử
     public Map<String, Object> get_dsbuoituvan_lichsu(String id) {
-        
+        return new HashMap<>();  // trả về map rỗng
     }
-    // 3. phan_hoi
+    // 4.phan hoi
+    // làm mẫu để chạy maven thử
     public boolean phan_hoi(Map<String, Object> body) {
-        
+        return true;  // trả về true
     }
 }

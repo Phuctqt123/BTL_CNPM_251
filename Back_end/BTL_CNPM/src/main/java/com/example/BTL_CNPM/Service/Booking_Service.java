@@ -9,13 +9,14 @@ public class Booking_Service {
 
     // 1. booking_Student
     public boolean booking_Student(Map<String, Object> body) {
-        
-        
+    // hiện thực mẫu để chạy maven
+        return true;
     }
 
     // 2. booking_Tutor
     public boolean booking_Tutor(Map<String, Object> body) {
-        
-        
+    // hiện thực mẫu để chạy maven
+        return true;
     }
+    
 }

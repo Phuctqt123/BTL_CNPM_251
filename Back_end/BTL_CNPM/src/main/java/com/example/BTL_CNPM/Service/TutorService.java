@@ -35,7 +35,7 @@ public class TutorService {
     }
 
 
-    // 4.1. Xem_lailieu
+    // 4.1. Xem_tailieu
     public Map<String, Object> get_dstailieu(int id) {
         try {
             String json = Database.apiGetDocumentsOfSession(id);
