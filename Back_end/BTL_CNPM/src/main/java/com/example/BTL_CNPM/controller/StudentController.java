@@ -13,16 +13,20 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.BTL_CNPM.Service.Booking_Service;
 import com.example.BTL_CNPM.Service.StudentService;
 import com.example.BTL_CNPM.Service.TutorService;
+import com.example.BTL_CNPM.Service.TutorService;
+import com.example.BTL_CNPM.Service.Notify_Service;
 
 @RestController
 @RequestMapping("/api/student")
 public class StudentController {
 
-    // 9. Lấy thông báo chung trên trang chủ
-    @GetMapping("/notifications")
-    public Map<String, Object> getNotifications() {
-        //after
+    // 9. Lấy thông báo chung trên trang chủ student_tutor_pct_pdt
+    @GetMapping("/notifications/{id}")
+    public Map<String, Object> getNotifications(@PathVariable String id) {
+        Notify_Service service = new Notify_Service();
+        return service.get_notify(id);
     }
+    
 
 
     // 10. Lấy thông tin cá nhân Sinh viên

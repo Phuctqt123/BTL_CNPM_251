@@ -342,4 +342,60 @@ public class Database {
             throw new Exception(e.getMessage());
         }
     }
+
+    // Tham khảo: 1. Hàm lấy thông báo chung
+    public static String apiGetGeneralNotice(String tenThongBao) throws Exception {
+        // Nếu p_ten_thong_bao là NULL, PostgreSQL sẽ dùng giá trị mặc định 'ThongBaoChung'
+        String sql = "{? = call api_get_general_notice(?)}"; 
+        
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.registerOutParameter(1, Types.OTHER); // Trả về JSONB
+            
+            // Thiết lập tham số đầu vào (ten_thong_bao)
+            if (tenThongBao != null) {
+                cs.setString(2, tenThongBao);
+            } else {
+                // Nếu Java truyền null, PostgreSQL sẽ dùng default là 'ThongBaoChung'
+                // Tuy nhiên, để gọi hàm có default params, ta nên truyền giá trị rõ ràng nếu không phải default
+                cs.setNull(2, Types.VARCHAR); 
+            }
+
+            cs.execute();
+            
+            // Lấy kết quả JSONB
+            Object result = cs.getObject(1);
+            return result != null ? result.toString() : null;
+
+        } catch(Exception e) {
+            throw new Exception("Lỗi khi lấy thông báo chung: " + e.getMessage());
+        }
+    }
+
+    // Tham khảo: 2. Hàm cập nhật thông báo chung (chỉ Giảng viên/Admin)
+    public static String apiUpdateGeneralNotice(String gvKey, String tenThongBao, String noiDungMoi) throws Exception {
+        String sql = "{? = call api_update_general_notice(?, ?, ?)}";
+        
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.registerOutParameter(1, Types.OTHER); // Trả về JSONB (status)
+            
+            // Thiết lập các tham số đầu vào
+            cs.setString(2, gvKey);        // p_gv_key
+            cs.setString(3, tenThongBao);  // p_ten_thong_bao
+            cs.setString(4, noiDungMoi);   // p_noi_dung_moi
+
+            cs.execute();
+            
+            // Lấy kết quả JSONB
+            Object result = cs.getObject(1);
+            return result != null ? result.toString() : null;
+
+        } catch(Exception e) {
+            throw new Exception("Lỗi khi cập nhật thông báo chung: " + e.getMessage());
+        }
+    }
+
 }
