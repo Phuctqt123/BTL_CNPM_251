@@ -24,4 +24,9 @@ public class AdminController {
         Notify_Service service = new Notify_Service();
         return service.update_noidung(body);
     }
+    @GetMapping("/notifications/{id}")
+    public Map<String, Object> getNotifications(@PathVariable String id) {
+        Notify_Service service = new Notify_Service();
+        return service.get_notify(id);
+    }
 }

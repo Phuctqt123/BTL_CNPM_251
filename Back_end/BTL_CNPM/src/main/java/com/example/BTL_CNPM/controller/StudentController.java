@@ -19,13 +19,7 @@ import com.example.BTL_CNPM.Service.Notify_Service;
 @RestController
 @RequestMapping("/api/student")
 public class StudentController {
-
-    // 9. Lấy thông báo chung trên trang chủ student_tutor_pct_pdt
-    @GetMapping("/notifications/{id}")
-    public Map<String, Object> getNotifications(@PathVariable String id) {
-        Notify_Service service = new Notify_Service();
-        return service.get_notify(id);
-    }
+    
     
 
 
