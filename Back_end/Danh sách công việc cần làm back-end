@@ -30,3 +30,18 @@ PDT:
 17.API lấy danh sách sinh viên
 18.API lấy danh sách buổi tư vấn
 19.API Lấy chi tiết buổi tư vấn
+
+
+"{"Sdt": "0988001122", "Email": "khoaph@example.com", "Ho_ten": "Phạm Khoa", "Key_user": "SV007", "Start_time": "2024-08-01"}
+{"Sdt": "0966112233", "Email": "buithien@example.com", "Ho_ten": "Bùi Thiện", "Key_user": "SV009", "Start_time": "2024-08-01"}
+{"Sdt": "0905556677", "Email": "votu@example.com", "Ho_ten": "Võ Tú", "Key_user": "SV005", "Start_time": "2023-08-01"} 
+{"Sdt": "0901234567", "Email": "anvan@example.com", "Ho_ten": "Văn An", "Key_user": "SV001", "Start_time": "2023-08-01"} 
+{"Sdt": "0977334455", "Email": "tranngoc@example.com", "Ho_ten": "Trần Ngọc", "Key_user": "SV008", "Start_time": "2023-08-01"} 
+{"Sdt": "0917778899", "Email": "lehuong@example.com", "Ho_ten": "Lê Hương", "Key_user": "SV006", "Start_time": "2023-08-01"}
+{"Sdt": "0909876543", "Email": "maithi@example.com", "Ho_ten": "Thị Mai", "Key_user": "SV002", "Start_time": "2023-08-01"}"
+
+
+data->string ->  domain (object) ->service filter -> controller
+
+
+AI: ""

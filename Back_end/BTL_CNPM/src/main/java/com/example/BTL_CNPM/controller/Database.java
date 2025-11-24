@@ -18,7 +18,7 @@ public class Database {
     // ================= Tutor APIs =================
 
     // 1. Lấy thông tin cá nhân giảng viên
-    public static String apiTutorGetProfile(String gvKey) {
+    public static String apiTutorGetProfile(String gvKey) throws Exception{
         String sql = "{? = call api_tutor_get_profile(?)}";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -30,7 +30,7 @@ public class Database {
             return result != null ? result.toString() : null;
 
         } catch (Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -38,7 +38,7 @@ public class Database {
     public static String apiTutorCreateSession(String gvKey, String tenBuoi, String hinhThuc,
                                                 Timestamp thoiGianBD, Timestamp thoiGianKT,
                                                 String ghiChu, String diaChi, String linkGgmeet,
-                                                Integer slToiThieu, Integer slToiDa) {
+                                                Integer slToiThieu, Integer slToiDa) throws Exception{
         String sql = "{? = call api_tutor_create_session(?,?,?,?,?,?,?,?,?,?)}";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -60,12 +60,12 @@ public class Database {
             return result != null ? result.toString() : null;
 
         } catch (Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
     // 3. Lấy lịch sử các buổi tư vấn của giảng viên
-    public static String apiTutorGetHistory(String gvKey) {
+    public static String apiTutorGetHistory(String gvKey) throws Exception{
         String sql = "SELECT result FROM api_tutor_get_history(?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -80,12 +80,12 @@ public class Database {
             return sb.toString();
 
         } catch (Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
     // 4. Xem tài liệu buổi tư vấn (Tutor & Student)
-    public static String apiGetDocumentsOfSession(int buoiId) {
+    public static String apiGetDocumentsOfSession(int buoiId) throws Exception{
         String sql = "SELECT result FROM api_get_documents_of_session(?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -100,50 +100,62 @@ public class Database {
             return sb.toString();
 
         } catch (Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
     // 5. Thêm tài liệu vào buổi tư vấn
-    public static String apiTutorAddDocument(String gvKey, int buoiId, String filename) {
+    public static String apiTutorAddDocument(String gvKey, int buoiId, String filename) throws Exception {
         String sql = "{? = call api_tutor_add_document(?,?,?)}";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
-             CallableStatement cs = conn.prepareCall(sql)) {
+            CallableStatement cs = conn.prepareCall(sql)) {
 
             cs.registerOutParameter(1, Types.OTHER);
             cs.setString(2, gvKey);
             cs.setInt(3, buoiId);
             cs.setString(4, filename);
             cs.execute();
+
             Object result = cs.getObject(1);
             return result != null ? result.toString() : null;
 
         } catch (Exception e) {
-            return "❌ Error: " + e.getMessage();
+            // QUAN TRỌNG: NÉM LẠI LỖI, KHÔNG TRẢ STRING
+            throw new Exception("Lỗi database khi thêm tài liệu: " + e.getMessage(), e);
         }
     }
 
-    // 6. Xóa tài liệu khỏi buổi tư vấn
-    public static String apiTutorDeleteDocument(String gvKey, int buoiId, int taiLieuId) {
-        String sql = "{? = call api_tutor_delete_document(?,?,?)}";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
-             CallableStatement cs = conn.prepareCall(sql)) {
 
+    // 6. Xóa tài liệu khỏi buổi tư vấn
+    public static String apiTutorDeleteDocument(String gvKey, int buoiId, int taiLieuId) throws Exception {
+        String sql = "{? = call api_tutor_delete_document(?,?,?)}";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            CallableStatement cs = conn.prepareCall(sql)) {
+
+            // Đăng ký tham số OUT
             cs.registerOutParameter(1, Types.OTHER);
+
+            // Tham số IN
             cs.setString(2, gvKey);
             cs.setInt(3, buoiId);
             cs.setInt(4, taiLieuId);
+
+            // Thực thi procedure
             cs.execute();
+
             Object result = cs.getObject(1);
             return result != null ? result.toString() : null;
 
         } catch (Exception e) {
-            return "❌ Error: " + e.getMessage();
+            // Bắt lỗi và ném lại để service xử lý
+            throw new Exception("Lỗi database khi xóa tài liệu: " + e.getMessage(), e);
         }
     }
 
+
     // 7. Hủy buổi tư vấn (Tutor hoặc Student)
-    public static String apiCancelSession(String userKey, int buoiId) {
+    public static String apiCancelSession(String userKey, int buoiId) throws Exception{
         String sql = "{? = call api_cancel_session(?,?)}";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -156,13 +168,13 @@ public class Database {
             return result != null ? result.toString() : null;
 
         } catch (Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception("Lỗi database khi hủy buổi tư vấn: " + e.getMessage(), e);
         }
     }
 
     // 8. Gửi đánh giá
     public static String apiSubmitRating(String nguoiDanhGia, int buoiId, String loaiDanhGia,
-                                         int diemSo, String nguoiDuocDg, String noiDung) {
+                                         int diemSo, String nguoiDuocDg, String noiDung) throws Exception{
         String sql = "{? = call api_submit_rating(?,?,?,?,?,?)}";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -179,14 +191,14 @@ public class Database {
             return result != null ? result.toString() : null;
 
         } catch (Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception("Lỗi database khi gửi đánh giá: " + e.getMessage(), e);
         }
     }
 
     // ================= Student APIs =================
 
     // 9. Lấy trang chủ student
-    public static String apiStudentHomepage() {
+    public static String apiStudentHomepage() throws Exception{
         String sql = "SELECT result FROM api_student_homepage()";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              Statement st = conn.createStatement();
@@ -199,12 +211,12 @@ public class Database {
             }
             return sb.toString();
         } catch(Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
     // 10. Lấy profile student
-    public static String apiStudentGetProfile(String svKey) {
+    public static String apiStudentGetProfile(String svKey) throws Exception{
         String sql = "{? = call api_student_get_profile(?)}";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -216,12 +228,13 @@ public class Database {
             return result != null ? result.toString() : null;
 
         } catch(Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
     // 11. Đăng ký buổi tư vấn
-    public static String apiStudentRegisterSession(String svKey, int buoiId) {
+    
+    public static String apiStudentRegisterSession(String svKey, int buoiId) throws Exception{
         String sql = "{? = call api_student_register_session(?,?)}";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -234,12 +247,12 @@ public class Database {
             return result != null ? result.toString() : null;
 
         } catch(Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
     // 12. Lấy lịch sử buổi tư vấn của student
-    public static String apiStudentGetHistory(String svKey) {
+    public static String apiStudentGetHistory(String svKey) throws Exception{
         String sql = "SELECT result FROM api_student_get_history(?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -254,14 +267,13 @@ public class Database {
             return sb.toString();
 
         } catch(Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
     // ================= PDT / Admin APIs =================
-
     // 16. Dashboard PDT
-    public static String apiPdtDashboard() {
+    public static String apiPdtDashboard() throws Exception{
         String sql = "{? = call api_pdt_dashboard()}";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -272,12 +284,12 @@ public class Database {
             return result != null ? result.toString() : null;
 
         } catch(Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
     // 17. Danh sách sinh viên
-    public static String apiPdtListStudents() {
+    public static String apiPdtListStudents() throws Exception{
         String sql = "SELECT result FROM api_pdt_list_students()";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              Statement st = conn.createStatement();
@@ -291,12 +303,12 @@ public class Database {
             return sb.toString();
 
         } catch(Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
     // 18. Danh sách buổi tư vấn
-    public static String apiPdtListSessions() {
+    public static String apiPdtListSessions() throws Exception{
         String sql = "SELECT result FROM api_pdt_list_sessions()";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              Statement st = conn.createStatement();
@@ -310,12 +322,12 @@ public class Database {
             return sb.toString();
 
         } catch(Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 
     // 19. Chi tiết 1 buổi tư vấn
-    public static String apiPdtSessionDetail(int buoiId) {
+    public static String apiPdtSessionDetail(int buoiId) throws Exception{
         String sql = "{? = call api_pdt_session_detail(?)}";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -327,7 +339,7 @@ public class Database {
             return result != null ? result.toString() : null;
 
         } catch(Exception e) {
-            return "❌ Error: " + e.getMessage();
+            throw new Exception(e.getMessage());
         }
     }
 }

@@ -1,102 +1,128 @@
 package com.example.BTL_CNPM.controller;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.BTL_CNPM.Service.Booking_Service;
+import com.example.BTL_CNPM.Service.TutorService;
 
 @RestController
 @RequestMapping("/api/tutor")
 public class TutorController {
 
     // 1. Lấy thông tin cá nhân Tutor
-    @GetMapping("/profile")
-    public Map<String, Object> getTutorProfile() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("tutorId", "T001");
-        data.put("name", "Nguyễn Văn A");
-        data.put("email", "tutor.a@example.com");
-        data.put("phone", "0901234567");
-        data.put("specialty", "Lập trình Java");
-        data.put("rating", 4.8);
-        return data;
+    @GetMapping("/profile/{id}")
+    public Map<String, Object> getTutorProfile(@PathVariable String id) {
+        // Gọi service lấy thông tin
+        TutorService service = new TutorService();
+        return service.get_info(id);
     }
 
     // 2. Tạo buổi tư vấn
+    /*
+    body mẫu:
+
+    {
+        "gvKey": "GV001",
+        "tenBuoi": "Buổi tư vấn Java nâng cao",
+        "hinhThuc": "Offline", 
+        "thoiGianBD": "2025-01-10T14:00:00",
+        "thoiGianKT": "2025-01-10T16:00:00",
+        "ghiChu": "Mang laptop",
+        "diaChi": "Phòng Lab 301 - Đại học CNTT",
+        "linkGgmeet": null,
+        "slToiThieu": 5,
+        "slToiDa": 20
+    }
+
+     */
     @PostMapping("/session/create")
-    public Map<String, Object> createSession(@RequestBody Map<String, Object> body) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", true);
-        data.put("sessionId", "SESS001234");
-        data.put("message", "Tạo buổi tư vấn thành công");
-        return data;
+    public boolean createSession(@RequestBody Map<String, Object> body) {
+        Booking_Service service = new Booking_Service();
+        return service.booking_Tutor(body);
     }
 
     // 3. Lấy danh sách lịch sử buổi tư vấn của Tutor
-    @GetMapping("/history")
-    public Map<String, Object> getTutorHistory() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("total", 25);
-        data.put("sessions", java.util.List.of(
-            Map.of("sessionId", "SESS001", "studentName", "Trần Thị B", "date", "2025-11-15", "status", "completed"),
-            Map.of("sessionId", "SESS002", "studentName", "Lê Văn C", "date", "2025-11-18", "status", "upcoming")
-        ));
-        return data;
+    @GetMapping("/history/{id}")
+    public Map<String, Object> getTutorHistory(@PathVariable String id) {
+        TutorService service = new TutorService();
+        return service.get_dsbuoituvan(id);
     }
 
     // 4. Xem tài liệu của 1 buổi tư vấn
     @GetMapping("/session/{sessionId}/documents")
-    public Map<String, Object> getSessionDocuments(@PathVariable String sessionId) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("sessionId", sessionId);
-        data.put("documents", java.util.List.of(
-            Map.of("docId", "DOC001", "name", "Slide_Javascript.pdf", "uploadedBy", "tutor"),
-            Map.of("docId", "DOC002", "name", "Code_sample.zip", "uploadedBy", "student")
-        ));
-        return data;
+    public Map<String, Object> getSessionDocuments(@PathVariable int sessionId) {
+        TutorService service = new TutorService();
+        return service.get_dstailieu(sessionId);
     }
 
     // 5. Xóa 1 tài liệu
-    @DeleteMapping("/document/{docId}")
-    public Map<String, Object> deleteDocument(@PathVariable String docId) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", true);
-        data.put("docId", docId);
-        data.put("message", "Xóa tài liệu thành công");
-        return data;
+    /*
+    {
+        "gvKey": "GV001",
+        "buoiId": 12,
+        "taiLieuId": 1
+    }
+    
+    */
+    @PostMapping("/session/delete_document")
+    public boolean deleteDocument(@RequestBody Map<String, Object> body) {
+        TutorService service = new TutorService();
+        return service.xoa_tailieu(body);
     }
 
     // 6. Thêm 1 tài liệu vào buổi tư vấn
-    @PostMapping("/session/{sessionId}/document")
-    public Map<String, Object> addDocument(@PathVariable String sessionId, @RequestBody Map<String, Object> body) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", true);
-        data.put("docId", "DOC003");
-        data.put("sessionId", sessionId);
-        data.put("message", "Thêm tài liệu thành công");
-        return data;
+    /*
+    {
+        "gvKey": "GV001",
+        "buoiId": 12,
+        "filename": "tai_lieu.pdf"
+    }
+    */
+    @PostMapping("/session/add_document")
+    public boolean addDocument(
+            @RequestBody Map<String, Object> body
+    ) {
+        TutorService service = new TutorService();
+        return service.them_tailieu(body);
     }
 
-    // 7. Hủy 1 buổi tư vấn
-    @PostMapping("/session/{sessionId}/cancel")
-    public Map<String, Object> cancelSession(@PathVariable String sessionId) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", true);
-        data.put("sessionId", sessionId);
-        data.put("message", "Hủy buổi tư vấn thành công");
-        return data;
+    // 7. Hủy 1 buổi tư vấn cho student và tutor
+    /*
+        {
+            "gvKey": "GV001",
+            "buoiId": 12
+        }
+    */
+    @PostMapping("/session/cancel")
+    public boolean cancelSession(@RequestBody Map<String, Object> body) {
+        TutorService service = new TutorService();
+        return service.huy_buoituvan(body);
     }
 
-    // 8. Xem đánh giá (Tutor xem các đánh giá nhận được)
+    // 8. Đánh giá 
+    /*
+    {
+        "nguoiDanhGia": "GV001",
+        "buoiId": 12,
+        "loaiDanhGia": "Chấm điểm buổi học",
+        "diemSo": 9,
+        "nguoiDuocDg": "HS123",
+        "noiDung": "Buổi học rất hiệu quả, học viên chăm chú và tích cực tham gia."
+    }
+    */
     @GetMapping("/reviews")
-    public Map<String, Object> getTutorReviews() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("averageRating", 4.8);
-        data.put("totalReviews", 42);
-        data.put("reviews", java.util.List.of(
-            Map.of("studentName", "Nguyễn Thị D", "rating", 5, "comment", "Giảng hay, nhiệt tình!"),
-            Map.of("studentName", "Phạm Văn E", "rating", 4, "comment", "Rất hữu ích")
-        ));
-        return data;
+    public boolean TutorReviews(@RequestBody Map<String, Object> body) {
+        TutorService service = new TutorService();
+        return service.guidanhgia(body);
     }
 }

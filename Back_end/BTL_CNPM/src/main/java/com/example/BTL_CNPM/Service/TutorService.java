@@ -1,11 +1,9 @@
 package com.example.BTL_CNPM.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.example.BTL_CNPM.domain.Buoi_tu_van;
-import com.example.BTL_CNPM.domain.TaiLieu;
-import com.example.BTL_CNPM.domain.Tutor;
+import com.example.BTL_CNPM.controller.Database;
 
 // Giả định Tutor, Buoi_tu_van và TaiLieu đã được định nghĩa
 
@@ -14,44 +12,102 @@ import com.example.BTL_CNPM.domain.Tutor;
  */
 public class TutorService {
 
-    // 1. get_info(tutor: Tutor)
-    public String get_info(Tutor tutor) {
-        if (tutor == null) {
-            return "Lỗi: Tutor không hợp lệ.";
+    // 1. get_info
+    public Map<String, Object> get_info(String gvKey) {
+        try {
+            String json = Database.apiTutorGetProfile(gvKey);
+            return JSONUtil.toMap(json);
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi lấy thông tin tutor: " + e.getMessage());
+            return new HashMap<>(); // trả về map rỗng nếu lỗi
         }
-        // Logic: Lấy thông tin chi tiết của Tutor
-        return "[Tutor] Thông tin của Tutor: " + tutor.get_ten();
     }
 
-    // 2. get_dsbuoituvan(tutor: Tutor)
-    public List<Buoi_tu_van> get_dsbuoituvan(Tutor tutor) {
-        // Logic: Truy vấn database để lấy danh sách các buổi tư vấn do Tutor này phụ trách
-        List<Buoi_tu_van> dsBuoi = new ArrayList<>();
-        dsBuoi.add(new Buoi_tu_van());
-        System.out.println("[Tutor] Tutor " + tutor.get_ten() + " có " + dsBuoi.size() + " buổi tư vấn.");
-        return dsBuoi;
+    // 2. get_dsbuoituvan
+    public Map<String, Object> get_dsbuoituvan(String gvKey) {
+        try {
+            String json = Database.apiTutorGetHistory(gvKey);
+            return JSONUtil.toMap(json);
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi lấy thông tin tutor: " + e.getMessage());
+            return new HashMap<>(); // trả về map rỗng nếu lỗi
+        }
     }
 
-    // 3. danh_gia(tutor: Tutor, buoituvan: Buoi_tu_van)
-    public boolean danh_gia(Tutor tutor, Buoi_tu_van buoituvan) {
-        if (tutor == null || buoituvan == null) {
-            System.out.println("[Tutor] Thất bại: Thiếu thông tin đánh giá.");
-            return false;
+
+    // 4.1. Xem_lailieu
+    public Map<String, Object> get_dstailieu(int id) {
+        try {
+            String json = Database.apiGetDocumentsOfSession(id);
+            return JSONUtil.toMap(json);
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi lấy thông tin tutor: " + e.getMessage());
+            return new HashMap<>(); // trả về map rỗng nếu lỗi
         }
-        // Logic: Thêm logic đánh giá buổi tư vấn
-        System.out.println("[Tutor] Đã đánh giá buổi tư vấn: " + buoituvan.getTen_buoi_van() + " thành công.");
-        return true;
     }
     
-    // 4. them_tailieu(tailieu: TaiLieu, buoituvan: Buoi_tu_van)
-    public boolean them_tailieu(TaiLieu tailieu, Buoi_tu_van buoituvan) {
-        if (tailieu == null || buoituvan == null) {
-            System.out.println("[Tutor] Thất bại: Thiếu thông tin tài liệu hoặc buổi tư vấn.");
+    // 4.2. them_tailieu
+    public boolean them_tailieu( Map<String, Object> body) {
+        
+        String gvKey = body.get("gvKey").toString();
+        int id = ((Number) body.get("buoiId")).intValue();
+        String filename = body.get("filename").toString();
+        try {
+            Database.apiTutorAddDocument(gvKey, id, filename);
+            return true;
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi thêm tài liệu: " + e.getMessage());
             return false;
         }
-        // Logic: Thêm tài liệu vào danh sách tài liệu của buổi tư vấn
-        // buoituvan.getDanh_sach_tai_lieu().add(tailieu); // Cần getter/setter thích hợp
-        System.out.println("[Tutor] Đã thêm tài liệu '" + tailieu.getFilename() + "' vào buổi tư vấn '" + buoituvan.getTen_buoi_van() + "'.");
-        return true;
+    }
+
+    //4.3 xoa_tailieu
+    public boolean xoa_tailieu( Map<String, Object> body) {
+        String gvKey = body.get("gvKey").toString();
+        int id = ((Number) body.get("buoiId")).intValue();
+        int taiLieuId = ((Number) body.get("taiLieuId")).intValue();
+        try {
+            Database.apiTutorDeleteDocument(gvKey, id, taiLieuId);
+            return true;
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi xóa tài liệu: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean huy_buoituvan( Map<String, Object> body) {
+        String gvKey = body.get("gvKey").toString();
+        int id = ((Number) body.get("buoiId")).intValue();
+        try {
+            Database.apiCancelSession(gvKey, id);
+            return true;
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi xóa tài liệu: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean guidanhgia( Map<String, Object> body) {
+        try {
+            // Lấy dữ liệu từ body và ép kiểu
+            String nguoiDanhGia = body.get("nguoiDanhGia").toString();
+            int buoiId = ((Number) body.get("buoiId")).intValue();
+            String loaiDanhGia = body.get("loaiDanhGia").toString();
+            int diemSo = ((Number) body.get("diemSo")).intValue();
+            String nguoiDuocDg = body.get("nguoiDuocDg").toString();
+            String noiDung = body.get("noiDung").toString();
+
+            // Gọi hàm static API
+            String result = Database.apiSubmitRating(
+                    nguoiDanhGia, buoiId, loaiDanhGia, diemSo, nguoiDuocDg, noiDung
+            );
+
+            // Kiểm tra kết quả trả về (tùy vào API, ví dụ trả về "OK" nếu thành công)
+            return result != null && result.equalsIgnoreCase("OK");
+
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi gửi đánh giá: " + e.getMessage());
+            return false;
+        }
     }
 }

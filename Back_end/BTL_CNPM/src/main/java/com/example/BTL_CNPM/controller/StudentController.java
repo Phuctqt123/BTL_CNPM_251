@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.BTL_CNPM.Service.Booking_Service;
+import com.example.BTL_CNPM.Service.StudentService;
+import com.example.BTL_CNPM.Service.TutorService;
+
 @RestController
 @RequestMapping("/api/student")
 public class StudentController {
@@ -17,95 +21,58 @@ public class StudentController {
     // 9. Lấy thông báo chung trên trang chủ
     @GetMapping("/notifications")
     public Map<String, Object> getNotifications() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("notifications", java.util.List.of(
-            Map.of("title", "Thông báo nghỉ Tết", "date", "2025-11-18", "important", true),
-            Map.of("title", "Lịch tư vấn tuần này", "date", "2025-11-15", "important", false)
-        ));
-        return data;
+        //after
     }
 
 
-    @GetMapping("/abcde")
-    public String getNotifications2() {
-
-        String usersString = Database.apiStudentGetHistory("SV001");
-
-        return usersString;   // ✔ OK
-    }
     // 10. Lấy thông tin cá nhân Sinh viên
-    @GetMapping("/profile")
-    public Map<String, Object> getStudentProfile() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("studentId", "SV2023001");
-        data.put("name", "Trần Văn Nam");
-        data.put("email", "nam.tv@student.edu.vn");
-        data.put("major", "Công nghệ thông tin");
-        data.put("year", 3);
-        return data;
+    @GetMapping("/profile/{id}")
+    public Map<String, Object> getStudentProfile(@PathVariable String id) {
+        StudentService service = new StudentService();
+        return service.get_info(id);
     }
 
-    // 11. Lấy danh sách buổi tư vấn đã đăng ký
-    @GetMapping("/registered-sessions")
-    public Map<String, Object> getRegisteredSessions() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("sessions", java.util.List.of(
-            Map.of("sessionId", "SESS001", "tutorName", "Nguyễn Văn A", "subject", "Java Advanced", "date", "2025-11-20 14:00", "status", "confirmed"),
-            Map.of("sessionId", "SESS002", "tutorName", "Lê Thị B", "subject", "Database", "date", "2025-11-22 09:00", "status", "pending")
-        ));
-        return data;
+    // 11. Lấy danh sách buổi tư vấn đăng ký
+    @GetMapping("/registered-sessionn/{id}")
+    public Map<String, Object> getRegisteredSessions(@PathVariable String id) {
+        StudentService service = new StudentService();
+        return service.get_dsbuoituvan(id);
     }
 
     // 12. Đăng ký buổi tư vấn
+    /*
+        {
+            "svKey": "SV123",
+            "buoiId": 12
+        }
+     
+     */
     @PostMapping("/session/register")
-    public Map<String, Object> registerSession(@RequestBody Map<String, Object> body) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", true);
-        data.put("registrationId", "REG001234");
-        data.put("message", "Đăng ký buổi tư vấn thành công, chờ gia sư xác nhận");
-        return data;
+    public boolean registerSession(@RequestBody Map<String, Object> body) {
+        Booking_Service service = new Booking_Service();
+        return service.booking_Student(body);
     }
 
     // 13. Lấy danh sách lịch sử buổi tư vấn của sinh viên
-    @GetMapping("/history")
-    public Map<String, Object> getStudentHistory() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("history", java.util.List.of(
-            Map.of("sessionId", "SESS0001", "tutorName", "Phạm Văn C", "date", "2025-10-15", "ratingGiven", true),
-            Map.of("sessionId", "SESS0002", "tutorName", "Nguyễn Thị D", "date", "2025-11-01", "ratingGiven", false)
-        ));
-        return data;
+    @GetMapping("/history/{id}")
+    public Map<String, Object> getStudentHistory(@PathVariable String id) {
+        StudentService service = new StudentService();
+        return service.get_dsbuoituvan_lichsu(id);
     }
 
-    // 14. Xem tài liệu của 1 buổi tư vấn (sinh viên)
-    @GetMapping("/session/{sessionId}/documents")
-    public Map<String, Object> getSessionDocuments(@PathVariable String sessionId) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("sessionId", sessionId);
-        data.put("documents", java.util.List.of(
-            Map.of("docId", "DOC001", "name", "SpringBoot_Note.pdf", "uploadedBy", "tutor"),
-            Map.of("docId", "DOC002", "name", "MyQuestion.docx", "uploadedBy", "me")
-        ));
-        return data;
-    }
+    // 14. Xem tài liệu của 1 buổi tư vấn (sinh viên)-> Tutor đã có
+    // @GetMapping("/session/{sessionId}/documents")
+    // public Map<String, Object> getSessionDocuments(@PathVariable String sessionId) {
+    //     TutorService service = new TutorService();
+    //     return service.get_dstailieu(sessionId);
+    // }
 
-    // 15. Hủy 1 buổi tư vấn (sinh viên)
-    @PostMapping("/session/{sessionId}/cancel")
-    public Map<String, Object> cancelSession(@PathVariable String sessionId) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", true);
-        data.put("sessionId", sessionId);
-        data.put("message", "Hủy đăng ký thành công");
-        return data;
-    }
+    // 15. Hủy 1 buổi tư vấn (sinh viên) ->Tutor_controller bao gồm
+    // @PostMapping("/session/cancel_student")
+    // public Map<String, Object> cancelSession(@RequestBody Map<String, Object> body) {
+        
+    // }
 
-    // 16. Đánh giá buổi tư vấn
-    @PostMapping("/session/{sessionId}/review")
-    public Map<String, Object> submitReview(@PathVariable String sessionId, @RequestBody Map<String, Object> body) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", true);
-        data.put("sessionId", sessionId);
-        data.put("message", "Cảm ơn bạn đã đánh giá!");
-        return data;
-    }
+    // 16. Đánh giá buổi tư vấn -> Tutor controller bao gồm
+    
 }

@@ -26,7 +26,7 @@ function getStudentsData() {
         { stt: 20, mssv: 2313556, name: 'Kiều Anh Tuấn',        sessions: 6,  score: 80 },
         { stt: 21, mssv: 2313667, name: 'Lạc Quốc Minh',        sessions: 8,  score: 93 },
         { stt: 22, mssv: 2313778, name: 'Tạ Thị Phương Linh',   sessions: 5,  score: 74 },
-        { stt: 23, mssv: 2311111, name: 'Dương Hồ Nam',         sessions: 76, score: 1046 } // Top 1
+        { stt: 23, mssv: 2311111, name: 'Dương Hồ Nam',         sessions: 76, score: 1046 } 
       ];
       resolve(students);
     }, 600); // delay để thấy loading đẹp
