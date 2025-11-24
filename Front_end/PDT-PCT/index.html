@@ -130,11 +130,67 @@
       color: inherit !important;
       outline: none !important;
     }
+
+  .top-notification-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(90deg, #0388B4, #026689);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+    height: 38px;
+    line-height: 38px;
+  }
+
+  .ticker-wrapper {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker {
+    display: inline-block;
+    animation: ticker 45s linear infinite;
+    padding-left: 100%; /* bắt đầu từ ngoài bên phải */
+  }
+
+  .ticker span {
+    margin-right: 60px;
+  }
+
+  .ticker i {
+    margin-right: 10px;
+    color: #00D4FF;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+  /* Nếu có header iframe, cần điều chỉnh lại để không bị chồng */
+  iframe[src="header.html"] {
+    margin-top: 35px !important;
+  }
   </style>
 </head>
 <body>
   <iframe src="header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
-
+  <div class="top-notification-bar">
+    <div class="ticker-wrapper">
+      <div class="ticker">
+        <span><i class="fas fa-bell"></i> Thông báo: Hệ thống tư vấn sẽ bảo trì từ 23h00 ngày 25/11 đến 02h00 ngày 26/11 • </span>
+        <span><i class="fas fa-exclamation-circle"></i> Vui lòng hoàn tất đăng ký tư vấn trước 22/11 để được ưu tiên • </span>
+        <span><i class="fas fa-graduation-cap"></i> Kỳ đăng ký học kỳ 2025-1 sẽ mở vào ngày 01/12/2025 • </span>
+        <span><i class="fas fa-envelope"></i> Liên hệ phòng Đào tạo: pdt@hcmut.edu.vn</span>
+      </div>
+    </div>
+  </div>
   <div class="main-container">
     <section class="welcome-section">
       <div class="welcome-text">📚 Chào mừng đến Phòng Đào Tạo</div>

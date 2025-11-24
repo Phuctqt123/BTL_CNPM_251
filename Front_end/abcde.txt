@@ -1,0 +1,14 @@
+# 1. Stash các file chưa staged/modified (không ảnh hưởng staged files)
+git stash push -u -m "temp stash for other changes"
+
+# 2. Pull remote với rebase
+git pull --rebase origin main
+
+# 3. Commit các file đã staged (3 folder/file bạn muốn)
+git commit -m "Update controller + Notify_Service + domain"
+
+# 4. Push lên remote
+git push origin main
+
+# 5. Lấy lại các file đã stash (nếu cần)
+git stash pop
