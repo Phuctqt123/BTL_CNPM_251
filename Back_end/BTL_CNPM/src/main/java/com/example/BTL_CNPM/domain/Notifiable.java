@@ -10,5 +10,5 @@ public interface Notifiable {
      * @param message Nội dung thông báo.
      * @return true nếu thông báo thành công, false nếu ngược lại.
      */
-    boolean receiveNotification(String message);
+    String Notify(String message);
 }

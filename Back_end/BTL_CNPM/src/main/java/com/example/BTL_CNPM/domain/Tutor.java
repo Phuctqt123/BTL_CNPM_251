@@ -23,15 +23,12 @@ public class Tutor extends User implements Notifiable {
 
     // 1. Notify(message: string) - Thực thi Notifiable
     @Override
-    public boolean receiveNotification(String message) {
-        System.out.println("[Tutor] Đã nhận thông báo: " + message);
-        return true;
+    public String Notify(String message) {
+        String abc="Xin thông báo các quý thầy cô đang sử dụng dịch vụ rằng: " + message;
+        return abc;
     }
     
-    // Phương thức theo biểu đồ
-    public void Notify(String message) {
-        receiveNotification(message);
-    }
+    
 
     // 2. get_Json() - Ghi đè phương thức trừu tượng từ User
     @Override

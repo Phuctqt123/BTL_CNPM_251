@@ -31,15 +31,11 @@ public class PDT_PCT extends User implements Notifiable {
     // 1. Notify(message: string)
     // Thực thi phương thức từ interface Notifiable
     @Override
-    public boolean receiveNotification(String message) {
-        System.out.println("[PDT_PCT] Đã nhận thông báo: " + message);
-        return true; // Giả định luôn nhận thông báo thành công
+    public String Notify(String message) {
+        String abc="Xin thông báo Phòng đào tạo, phòng công tác rằng: " + message;
+        return abc;
     }
     
-    // Phương thức theo biểu đồ
-    public void Notify(String message) {
-        receiveNotification(message); // Gọi phương thức receiveNotification
-    }
 
     // 2. get_taikhoan()
     // Giả định phương thức này lấy thuộc tính Taikhoan từ lớp cha User
