@@ -44,7 +44,7 @@ public class StudentService {
             int diemSo = ((Number) body.get("diemSo")).intValue();     
             String noiDung = body.get("noiDung").toString();         
 
-            String loaiDanhGia = "student";
+            String loaiDanhGia = "SV_ve_Buoi";
             String nguoiDuocDg = null;
 
             String result = Database.apiSubmitRating(

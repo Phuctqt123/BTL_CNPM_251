@@ -67,7 +67,7 @@ public class StudentController {
     }
 
     // 16. Đánh giá buổi tư vấn 
-    @GetMapping("/reviews")
+    @PostMapping("/reviews")
     public boolean TutorReviews(@RequestBody Map<String, Object> body) {
         StudentService service = new StudentService();
         return service.phan_hoi(body);

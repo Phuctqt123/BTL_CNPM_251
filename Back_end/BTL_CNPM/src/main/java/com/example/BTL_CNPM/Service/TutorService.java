@@ -93,7 +93,7 @@ public class TutorService {
             // Lấy dữ liệu từ body và ép kiểu
             String nguoiDanhGia = body.get("nguoiDanhGia").toString();
             int buoiId = ((Number) body.get("buoiId")).intValue();
-            String loaiDanhGia = body.get("loaiDanhGia").toString();
+            String loaiDanhGia = "GV_ve_SV";
             int diemSo = ((Number) body.get("diemSo")).intValue();
             String nguoiDuocDg = body.get("nguoiDuocDg").toString();
             String noiDung = body.get("noiDung").toString();

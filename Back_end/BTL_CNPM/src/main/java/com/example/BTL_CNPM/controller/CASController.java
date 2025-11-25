@@ -1,5 +1,7 @@
 package com.example.BTL_CNPM.controller;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.MediaType;
@@ -19,89 +20,108 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/cas")
 @CrossOrigin(origins = "*")
 public class CASController {
 
-    private final String DB_URL = "jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres";
-    private final String DB_USER = "postgres.ccgetqgeblzfniakoasx";
-    private final String DB_PASSWORD = "Phuctqt123@";
+    private static final String DB_URL =
+            "jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres";
 
-    // ===== POST /verify =====
+    private static final String DB_USER = "postgres.ccgetqgeblzfniakoasx";
+    private static final String DB_PASS = "Phuctqt123@";
+
+    private String readRawBody(HttpServletRequest request) throws IOException {
+        StringBuilder raw = new StringBuilder();
+        try (BufferedReader reader = request.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                raw.append(line);
+            }
+        }
+        return raw.toString();
+    }
+
     @PostMapping(value = "/verify", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> verify(
-            @RequestHeader Map<String, String> headers,
-            @RequestBody(required = false) Map<String, Object> body
+    public Object verifyUser(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody(required = false) Map<String, Object> body,
+            HttpServletRequest request
     ) {
+        System.out.println("=== Đang xử lý yêu cầu /verify ===");
+
+        try {
+            String rawBody = readRawBody(request);
+            System.out.println("Raw Body: " + (rawBody.isEmpty() ? "Không có body" : rawBody));
+        } catch (Exception e) {
+            System.out.println("Không đọc được raw body: " + e.getMessage());
+        }
 
         String username = null;
         String password = null;
 
-        // ===== Xử lý Basic Auth =====
-        String authHeader = headers.get("authorization");
-        if (authHeader != null && authHeader.startsWith("Basic ")) {
+        // ===== BASIC AUTH =====
+        if (authorization != null && authorization.startsWith("Basic ")) {
             try {
-                String base64Credentials = authHeader.substring("Basic ".length());
-                byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
-                String credentials = new String(credDecoded, StandardCharsets.UTF_8);
-                String[] values = credentials.split(":", 2);
-                if (values.length == 2) {
-                    username = values[0];
-                    password = values[1];
-                }
+                String base64 = authorization.substring("Basic ".length());
+                String decoded = new String(Base64.getDecoder().decode(base64), StandardCharsets.UTF_8);
+                String[] parts = decoded.split(":", 2);
+
+                username = parts[0];
+                password = parts.length > 1 ? parts[1] : null;
+
+                System.out.println("Basic Auth: " + username + "/" + password);
             } catch (Exception e) {
-                System.err.println("❌ Basic Auth decode error: " + e.getMessage());
+                return false;
             }
         }
-        // ===== Nếu không có Basic Auth, dùng body =====
-        else if (body != null && body.get("username") != null && body.get("password") != null) {
+        // ===== BODY =====
+        else if (body != null && body.containsKey("username") && body.containsKey("password")) {
             username = body.get("username").toString();
             password = body.get("password").toString();
+        } else {
+            return false;
         }
 
-        // ===== Kiểm tra thông tin =====
-        if (username == null || password == null) {
-            System.out.println("❌ Thiếu username hoặc password");
-            return Map.of("success", false);
-        }
+        if (username == null || password == null)
+            return false;
 
-        // ===== Kết nối DB và xác thực =====
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM users WHERE Taikhoan = ? AND Matkhau = ?"
-             )) {
+        // ===== KẾT NỐI DB =====
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
 
+            String sql = "SELECT * FROM users WHERE Taikhoan = ? AND Matkhau = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, username);
             stmt.setString(2, password);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    String taikhoan = rs.getString("Taikhoan");
-                    String keyUser = rs.getString("Key_user");
-                    String vaiTro = rs.getString("Vai_tro");
+            ResultSet rs = stmt.executeQuery();
 
-                    Map<String, Object> attributes = new HashMap<>();
-                    attributes.put("username", List.of(taikhoan));
-                    attributes.put("key_user", List.of(keyUser));
-                    attributes.put("role", List.of(vaiTro));
+            if (rs.next()) {
+                String keyUser = rs.getString("key_user");
+                String role = rs.getString("vai_tro");
 
-                    Map<String, Object> response = new HashMap<>();
-                    response.put("@class", "org.apereo.cas.authentication.principal.SimplePrincipal");
-                    response.put("id", taikhoan);
-                    response.put("attributes", attributes);
+                Map<String, Object> response = new HashMap<>();
+                response.put("@class", "org.apereo.cas.authentication.principal.SimplePrincipal");
+                response.put("id", username);
 
-                    System.out.println("✅ Xác thực thành công cho: " + taikhoan);
-                    return response;
-                } else {
-                    System.out.println("❌ Xác thực thất bại cho: " + username);
-                    return Map.of("success", false);
-                }
+                Map<String, Object> attr = new HashMap<>();
+                attr.put("@class", "java.util.HashMap");
+                attr.put("username", new Object[]{"java.util.ArrayList", new Object[]{username}});
+                attr.put("keyuser", new Object[]{"java.util.ArrayList", new Object[]{keyUser}});
+                attr.put("role", new Object[]{"java.util.ArrayList", new Object[]{role}});
+
+                response.put("attributes", attr);
+
+                return response;
             }
 
+            return false;
+
         } catch (SQLException e) {
-            System.err.println("❌ DB Query Error: " + e.getMessage());
-            return Map.of("success", false);
+            System.out.println("DB Error: " + e.getMessage());
+            return false;
         }
     }
 }
