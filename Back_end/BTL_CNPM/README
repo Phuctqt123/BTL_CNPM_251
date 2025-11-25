@@ -1,7 +1,7 @@
 
 
 
-
+./mvnw -DskipTests package
 Cách chạy
 VS Code cần cài Extension:
 

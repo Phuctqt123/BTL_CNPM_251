@@ -26,3 +26,58 @@ pip install sentence-transformers
 
 # Cài đặt PyVi để tách từ tiếng Việt (bắt buộc cho mô hình tiếng Việt)
 pip install pyvi
+
+deploy:
+PHUC@DESKTOP-AMHG1IK MINGW64 /e
+$ cd /e/BTL_CNPM_251/Back_end/BTL_CNPM
+
+PHUC@DESKTOP-AMHG1IK MINGW64 /e/BTL_CNPM_251/Back_end/BTL_CNPM (main)
+$ chmod +x mvnw
+
+PHUC@DESKTOP-AMHG1IK MINGW64 /e/BTL_CNPM_251/Back_end/BTL_CNPM (main)
+$ cd ../../..
+
+PHUC@DESKTOP-AMHG1IK MINGW64 /e
+$ chmod +x start.sh
+chmod: cannot access 'start.sh': No such file or directory
+
+PHUC@DESKTOP-AMHG1IK MINGW64 /e
+$ cd BTL_CNPM_251
+
+PHUC@DESKTOP-AMHG1IK MINGW64 /e/BTL_CNPM_251 (main)
+$ chmod +x start.sh
+
+PHUC@DESKTOP-AMHG1IK MINGW64 /e/BTL_CNPM_251 (main)
+$ git add -u
+git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   Back_end/BTL_CNPM/README
+        modified:   README
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+  (commit or discard the untracked or modified content in submodules)
+        modified:   CAS_host (modified content, untracked content)
+
+
+PHUC@DESKTOP-AMHG1IK MINGW64 /e/BTL_CNPM_251 (main)
+$ git commit -m "Set execute permission for start.sh and mvnw"
+git push
+[main 9172180] Set execute permission for start.sh and mvnw
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+Enumerating objects: 11, done.
+Counting objects: 100% (11/11), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (6/6), done.
+Writing objects: 100% (6/6), 944 bytes | 944.00 KiB/s, done.
+Total 6 (delta 4), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (4/4), completed with 4 local objects.
+To https://github.com/Phuctqt123/BTL_CNPM_251.git
+   425c008..9172180  main -> main
+
+PHUC@DESKTOP-AMHG1IK MINGW64 /e/BTL_CNPM_251 (main)
