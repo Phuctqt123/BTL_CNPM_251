@@ -2,6 +2,7 @@ package com.example.BTL_CNPM.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import com.example.BTL_CNPM.Service.PDT_PCT_Service;
 
 @RestController
 @RequestMapping("/api/pdt")
+@CrossOrigin(origins = "*")
 public class PdtController {
 
     // 16. Lấy thông tin trang chủ PDT (thống kê tổng quan)

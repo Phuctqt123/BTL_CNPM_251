@@ -3,6 +3,7 @@ package com.example.BTL_CNPM.controller;
 
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import com.example.BTL_CNPM.Service.Notify_Service;
 
 @RestController
 @RequestMapping("/api/Admin")
+@CrossOrigin(origins = "*")
 public class AdminController {
     @PostMapping("/update_notify")
     public boolean update_notify(@RequestBody Map<String, Object> body) {

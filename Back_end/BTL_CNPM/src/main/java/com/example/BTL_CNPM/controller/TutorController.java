@@ -4,6 +4,7 @@ package com.example.BTL_CNPM.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import com.example.BTL_CNPM.Service.TutorService;
 
 @RestController
 @RequestMapping("/api/tutor")
+@CrossOrigin(origins = "*")
 public class TutorController {
 
     // 1. Lấy thông tin cá nhân Tutor
