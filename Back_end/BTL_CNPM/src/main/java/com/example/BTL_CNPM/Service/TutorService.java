@@ -1,6 +1,7 @@
 package com.example.BTL_CNPM.Service;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.example.BTL_CNPM.controller.Database;
@@ -13,36 +14,36 @@ import com.example.BTL_CNPM.controller.Database;
 public class TutorService {
 
     // 1. get_info
-    public Map<String, Object> get_info(String gvKey) {
+    public List<Map<String, Object>> get_info(String gvKey) {
         try {
             String json = Database.apiTutorGetProfile(gvKey);
             return JSONUtil.toMap(json);
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi lấy thông tin tutor: " + e.getMessage());
-            return new HashMap<>(); // trả về map rỗng nếu lỗi
+            return new ArrayList<>(); // trả về map rỗng nếu lỗi
         }
     }
 
     // 2. get_dsbuoituvan
-    public Map<String, Object> get_dsbuoituvan(String gvKey) {
+    public List<Map<String, Object>> get_dsbuoituvan(String gvKey) {
         try {
             String json = Database.apiTutorGetHistory(gvKey);
             return JSONUtil.toMap(json);
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi lấy thông tin tutor: " + e.getMessage());
-            return new HashMap<>(); // trả về map rỗng nếu lỗi
+            return new ArrayList<>(); // trả về map rỗng nếu lỗi
         }
     }
 
 
     // 4.1. Xem_tailieu
-    public Map<String, Object> get_dstailieu(int id) {
+    public List<Map<String, Object>> get_dstailieu(int id) {
         try {
             String json = Database.apiGetDocumentsOfSession(id);
             return JSONUtil.toMap(json);
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi lấy thông tin tutor: " + e.getMessage());
-            return new HashMap<>(); // trả về map rỗng nếu lỗi
+            return new ArrayList<>();// trả về map rỗng nếu lỗi
         }
     }
     

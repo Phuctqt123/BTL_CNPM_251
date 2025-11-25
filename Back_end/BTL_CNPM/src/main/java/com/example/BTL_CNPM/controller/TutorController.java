@@ -1,10 +1,9 @@
 package com.example.BTL_CNPM.controller;
 
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +20,7 @@ public class TutorController {
 
     // 1. Lấy thông tin cá nhân Tutor
     @GetMapping("/profile/{id}")
-    public Map<String, Object> getTutorProfile(@PathVariable String id) {
+    public List<Map<String, Object>> getTutorProfile(@PathVariable String id) {
         // Gọi service lấy thông tin
         TutorService service = new TutorService();
         return service.get_info(id);
@@ -53,14 +52,14 @@ public class TutorController {
 
     // 3. Lấy danh sách lịch sử buổi tư vấn của Tutor
     @GetMapping("/history/{id}")
-    public Map<String, Object> getTutorHistory(@PathVariable String id) {
+    public List<Map<String, Object>> getTutorHistory(@PathVariable String id) {
         TutorService service = new TutorService();
         return service.get_dsbuoituvan(id);
     }
 
     // 4. Xem tài liệu của 1 buổi tư vấn
     @GetMapping("/session/{sessionId}/documents")
-    public Map<String, Object> getSessionDocuments(@PathVariable int sessionId) {
+    public List<Map<String, Object>> getSessionDocuments(@PathVariable int sessionId) {
         TutorService service = new TutorService();
         return service.get_dstailieu(sessionId);
     }

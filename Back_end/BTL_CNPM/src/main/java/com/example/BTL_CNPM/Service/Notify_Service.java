@@ -1,14 +1,16 @@
 package com.example.BTL_CNPM.Service;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import com.example.BTL_CNPM.domain.*;
+
 import com.example.BTL_CNPM.controller.Database;
+import com.example.BTL_CNPM.domain.PDT_PCT;
+import com.example.BTL_CNPM.domain.SinhVien;
+import com.example.BTL_CNPM.domain.Tutor;
 public class Notify_Service {
     public Map<String, Object> get_notify(String id) {
         Map<String, Object> result = new HashMap<>();
-        String json = "";
+        String json;
 
         try {
             json = Database.apiGetGeneralNotice("ThongBao");
@@ -17,9 +19,15 @@ public class Notify_Service {
             return result;
         }
 
-        Map<String, Object> json0 = JSONUtil.toMap(json);
+        // Parse JSON -> List<Map>
+        List<Map<String, Object>> list = JSONUtil.toMap(json);
 
-        String message = (String) json0.getOrDefault("Noi_dung", "Không có nội dung thông báo");
+        // Lấy phần tử đầu tiên nếu có
+        Map<String, Object> firstItem = list.isEmpty() ? 
+                new HashMap<>() : list.get(0);
+
+        String message = (String) firstItem.getOrDefault("Noi_dung", "Không có nội dung thông báo");
+
         String notifyResult;
 
         if (id.startsWith("SV")) {
@@ -35,6 +43,7 @@ public class Notify_Service {
         result.put("notify", notifyResult);
         return result;
     }
+
 
     public boolean update_noidung(Map<String, Object> body ) {      
         String Key = body.get("Key").toString();

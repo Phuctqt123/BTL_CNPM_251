@@ -1,6 +1,6 @@
 package com.example.BTL_CNPM.controller;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.BTL_CNPM.Service.Booking_Service;
 import com.example.BTL_CNPM.Service.StudentService;
-import com.example.BTL_CNPM.Service.TutorService;
-import com.example.BTL_CNPM.Service.TutorService;
-import com.example.BTL_CNPM.Service.Notify_Service;
 
 @RestController
 @RequestMapping("/api/student")
@@ -25,14 +22,14 @@ public class StudentController {
 
     // 10. Lấy thông tin cá nhân Sinh viên
     @GetMapping("/profile/{id}")
-    public Map<String, Object> getStudentProfile(@PathVariable String id) {
+    public List<Map<String, Object>> getStudentProfile(@PathVariable String id) {
         StudentService service = new StudentService();
         return service.get_info(id);
     }
 
     // 11. Lấy danh sách buổi tư vấn đăng ký
     @GetMapping("/registered-sessionn/{id}")
-    public Map<String, Object> getRegisteredSessions(@PathVariable String id) {
+    public List<Map<String, Object>> getRegisteredSessions(@PathVariable String id) {
         StudentService service = new StudentService();
         return service.get_dsbuoituvan(id);
     }
@@ -53,7 +50,7 @@ public class StudentController {
 
     // 13. Lấy danh sách lịch sử buổi tư vấn của sinh viên
     @GetMapping("/history/{id}")
-    public Map<String, Object> getStudentHistory(@PathVariable String id) {
+    public List<Map<String, Object>> getStudentHistory(@PathVariable String id) {
         StudentService service = new StudentService();
         return service.get_dsbuoituvan_lichsu(id);
     }
