@@ -1,5 +1,8 @@
 #!/bin/bash
-# Chạy Spring Boot bằng Maven Wrapper
-cd Back_end/BTL_CNPM
-chmod +x mvnw
-./mvnw spring-boot:run
+
+# Cài Java 17
+apt-get update -y
+apt-get install -y openjdk-17-jdk
+
+# Chạy JAR
+java -jar Back_end/BTL_CNPM/target/demo-0.0.1-SNAPSHOT.jar
