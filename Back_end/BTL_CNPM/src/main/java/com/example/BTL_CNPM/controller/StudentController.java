@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.BTL_CNPM.Service.Booking_Service;
 import com.example.BTL_CNPM.Service.StudentService;
-
+import com.example.BTL_CNPM.Service.TutorService;
 @RestController
 @RequestMapping("/api/student")
 @CrossOrigin(origins = "*")
@@ -50,26 +50,26 @@ public class StudentController {
         return service.booking_Student(body);
     }
 
-    // 13. Lấy danh sách lịch sử buổi tư vấn của sinh viên
-    @GetMapping("/history/{id}")
-    public List<Map<String, Object>> getStudentHistory(@PathVariable String id) {
-        StudentService service = new StudentService();
-        return service.get_dsbuoituvan_lichsu(id);
+    
+
+    //14. Xem tài liệu của 1 buổi tư vấn (sinh viên)-> Tutor đã có
+    @GetMapping("/session/{sessionId}/documents")
+    public List<Map<String, Object>> getSessionDocuments(@PathVariable int sessionId) {
+        TutorService service = new TutorService();
+        return service.get_dstailieu(sessionId);
     }
 
-    // 14. Xem tài liệu của 1 buổi tư vấn (sinh viên)-> Tutor đã có
-    // @GetMapping("/session/{sessionId}/documents")
-    // public Map<String, Object> getSessionDocuments(@PathVariable String sessionId) {
-    //     TutorService service = new TutorService();
-    //     return service.get_dstailieu(sessionId);
-    // }
-
     // 15. Hủy 1 buổi tư vấn (sinh viên) ->Tutor_controller bao gồm
-    // @PostMapping("/session/cancel_student")
-    // public Map<String, Object> cancelSession(@RequestBody Map<String, Object> body) {
-        
-    // }
+    @PostMapping("/session/cancel_student")
+    public boolean cancelSession(@RequestBody Map<String, Object> body) {
+        StudentService service = new StudentService();
+        return service.huy_buoituvan_student(body);
+    }
 
-    // 16. Đánh giá buổi tư vấn -> Tutor controller bao gồm
-    
+    // 16. Đánh giá buổi tư vấn 
+    @GetMapping("/reviews")
+    public boolean TutorReviews(@RequestBody Map<String, Object> body) {
+        StudentService service = new StudentService();
+        return service.phan_hoi(body);
+    }
 }
