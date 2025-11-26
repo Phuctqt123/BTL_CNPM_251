@@ -342,6 +342,38 @@ public class Database {
             throw new Exception(e.getMessage());
         }
     }
+    public static String apiGetUpcomingSessions() throws Exception {
+        // Chuỗi SQL để gọi hàm trả về SETOF record (cần sử dụng RETURN QUERY/TABLE)
+        String sql = "SELECT * FROM api_get_upcoming_sessions()";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             // Sử dụng Statement hoặc PreparedStatement cho câu lệnh SELECT đơn giản
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            // Thực thi truy vấn
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                StringBuilder resultJson = new StringBuilder();
+                resultJson.append("[");
+                
+                // Lặp qua các bản ghi (mỗi bản ghi là 1 JSONB Object)
+                while (rs.next()) {
+                    // Lấy kết quả (cột đầu tiên)
+                    String jsonItem = rs.getString(1);
+                    if (resultJson.length() > 1) {
+                        resultJson.append(",");
+                    }
+                    resultJson.append(jsonItem);
+                }
+                resultJson.append("]");
+                
+                return resultJson.toString();
+
+            }
+        } catch (Exception e) {
+            // Log lỗi hoặc xử lý lỗi chi tiết hơn tại đây
+            throw new Exception("Lỗi khi gọi API api_get_upcoming_sessions: " + e.getMessage());
+        }
+    }
 
     // Tham khảo: 1. Hàm lấy thông báo chung
     public static String apiGetGeneralNotice(String tenThongBao) throws Exception {

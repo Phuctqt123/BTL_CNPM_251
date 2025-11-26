@@ -80,4 +80,14 @@ remote: Resolving deltas: 100% (4/4), completed with 4 local objects.
 To https://github.com/Phuctqt123/BTL_CNPM_251.git
    425c008..9172180  main -> main
 
+<<<<<<< HEAD
 PHUC@DESKTOP-AMHG1IK MINGW64 /e/BTL_CNPM_251 (main)
+=======
+PHUC@DESKTOP-AMHG1IK MINGW64 /e/BTL_CNPM_251 (main)
+
+
+
+git remote add origin https://github.com/Phuctqt123/BTL_CNPM_251_FE
+git fetch origin
+git reset --hard origin/main
+>>>>>>> 1c1d64d (Initial empty commit)

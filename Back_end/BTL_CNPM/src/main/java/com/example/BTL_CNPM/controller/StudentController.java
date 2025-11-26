@@ -30,8 +30,15 @@ public class StudentController {
     }
 
     // 11. Lấy danh sách buổi tư vấn đăng ký
+    @GetMapping("/registered-sessionn/upcoming")
+    public List<Map<String, Object>> getRegisteredSessions() {
+        StudentService service = new StudentService();
+        return service.get_dsbuoituvan_chuadienra();
+    }
+
+    // 11.2 Lấy danh sách lịch sử buổi tư vấn đăng ký
     @GetMapping("/registered-sessionn/{id}")
-    public List<Map<String, Object>> getRegisteredSessions(@PathVariable String id) {
+    public List<Map<String, Object>> getRegisteredSessions_history(@PathVariable String id) {
         StudentService service = new StudentService();
         return service.get_dsbuoituvan(id);
     }

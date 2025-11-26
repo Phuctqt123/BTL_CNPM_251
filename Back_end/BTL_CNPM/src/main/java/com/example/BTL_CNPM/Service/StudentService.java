@@ -30,10 +30,20 @@ public class StudentService {
             String json = Database.apiStudentGetHistory(id);
             return JSONUtil.toMap(json);
         } catch (Exception e) {
-            System.err.println("❌ Lỗi khi lấy thông tin student: " + e.getMessage());
+            System.err.println("❌ Lỗi : " + e.getMessage());
             return new ArrayList<>(); // trả về map rỗng nếu lỗi
         }
     }
+    public List<Map<String, Object>> get_dsbuoituvan_chuadienra() {
+            try {
+                String json = Database.apiGetUpcomingSessions();
+                return JSONUtil.toMap(json);
+            } catch (Exception e) {
+                System.err.println("❌ Lỗi : " + e.getMessage());
+                return new ArrayList<>(); // trả về map rỗng nếu lỗi
+            }
+        }
+
     
     // 4.phan hoi
     // làm mẫu để chạy maven thử
