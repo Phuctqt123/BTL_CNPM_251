@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -427,6 +428,31 @@ public class Database {
 
         } catch(Exception e) {
             throw new Exception("Lỗi khi cập nhật thông báo chung: " + e.getMessage());
+        }
+    }
+    /**
+     * Trả về mảng String[] các email cần gửi thông báo (getmail = TRUE)
+     * Dùng cực kỳ tiện trong vòng lặp gửi mail
+     */
+    public static String[] getSubscribedEmailArray() throws Exception {
+        String sql = "SELECT email FROM get_subscribed_emails_list()";  // Dùng hàm bảng
+        
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
+
+            java.util.List<String> emailList = new java.util.ArrayList<>();
+            while (rs.next()) {
+                String email = rs.getString("email");
+                if (email != null && !email.trim().isEmpty()) {
+                    emailList.add(email.trim());
+                }
+            }
+
+            return emailList.toArray(new String[0]);
+
+        } catch (SQLException e) {
+            throw new Exception("Lỗi khi lấy danh sách email nhận thông báo: " + e.getMessage(), e);
         }
     }
 

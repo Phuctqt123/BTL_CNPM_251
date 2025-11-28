@@ -1,8 +1,12 @@
 package com.example.BTL_CNPM.controller;
 
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,5 +30,15 @@ public class AdminController {
     public Map<String, Object> getNotifications(@PathVariable String id) {
         Notify_Service service = new Notify_Service();
         return service.get_notify(id);
+    }
+    @GetMapping("/get_listmail_n8n")
+    public ResponseEntity<List<String>> get_listmail_n8n() {
+        try {
+            String[] emails = Database.getSubscribedEmailArray();
+            return ResponseEntity.ok(Arrays.asList(emails));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Collections.singletonList("ERROR: " + e.getMessage()));
+        }
     }
 }
