@@ -1,10 +1,13 @@
 package com.example.BTL_CNPM.controller;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.BTL_CNPM.Service.Notify_Service;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/Admin")
@@ -39,6 +43,32 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(500)
                     .body(Collections.singletonList("ERROR: " + e.getMessage()));
+        }
+    }
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    @GetMapping("/student_feedback/{email}")
+    public ResponseEntity<List<Map<String, Object>>> getStudentFeedback(@PathVariable String email) {
+        try {
+            // Lấy danh sách JSON string từ Database
+            List<String> feedbackStrings = Database.getStudentFeedbackLast30Days(email);
+
+            // Chuyển từng JSON string thành Map<String,Object>
+            List<Map<String, Object>> feedbacks = new ArrayList<>();
+            for (String jsonStr : feedbackStrings) {
+                Map<String, Object> map = mapper.readValue(
+                        jsonStr, new TypeReference<Map<String, Object>>() {});
+                feedbacks.add(map);
+            }
+
+            // Trả về JSON object cho client
+            return ResponseEntity.ok(feedbacks);
+
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(500)
+                    .body(Collections.singletonList(error));
         }
     }
 }

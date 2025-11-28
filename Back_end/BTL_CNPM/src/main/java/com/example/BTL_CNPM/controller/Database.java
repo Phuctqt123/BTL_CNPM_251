@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Database {
 
@@ -453,6 +455,31 @@ public class Database {
 
         } catch (SQLException e) {
             throw new Exception("Lỗi khi lấy danh sách email nhận thông báo: " + e.getMessage(), e);
+        }
+    }
+    public static List<String> getStudentFeedbackLast30Days(String email) throws Exception {
+        String sql = "SELECT * FROM api_get_student_feedback_by_email_last_30days(?)";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                List<String> feedbackList = new ArrayList<>();
+
+                while (rs.next()) {
+                    String jsonStr = rs.getString("result");
+                    if (jsonStr != null && !jsonStr.isEmpty()) {
+                        feedbackList.add(jsonStr);
+                    }
+                }
+
+                return feedbackList;
+            }
+
+        } catch (SQLException e) {
+            throw new Exception("Lỗi khi lấy feedback sinh viên: " + e.getMessage(), e);
         }
     }
 
