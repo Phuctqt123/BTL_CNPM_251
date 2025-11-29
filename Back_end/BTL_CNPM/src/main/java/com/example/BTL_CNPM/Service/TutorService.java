@@ -98,27 +98,34 @@ public class TutorService {
         }
     }
 
-    public boolean guidanhgia( Map<String, Object> body) {
-        try {
-            // Lấy dữ liệu từ body và ép kiểu
-            String nguoiDanhGia = body.get("nguoiDanhGia").toString();
-            int buoiId = ((Number) body.get("buoiId")).intValue();
-            String loaiDanhGia = "GV_ve_SV";
-            int diemSo = ((Number) body.get("diemSo")).intValue();
-            String nguoiDuocDg = body.get("nguoiDuocDg").toString();
-            String noiDung = body.get("noiDung").toString();
+    public boolean guidanhgia(Map<String, Object> body) {
+    try {
+        // Lấy dữ liệu từ body và ép kiểu an toàn
+        String nguoiDanhGia = body.get("nguoiDanhGia").toString();
+        int buoiId = ((Number) body.get("buoiId")).intValue();
+        String loaiDanhGia = "GV_ve_SV"; // cố định cho giảng viên chấm sinh viên
+        int diemSo = ((Number) body.get("diemSo")).intValue();
+        String nguoiDuocDg = body.get("nguoiDuocDg").toString();
+        String noiDung = body.containsKey("noiDung") && body.get("noiDung") != null 
+                         ? body.get("noiDung").toString() 
+                         : null; // có thể null nếu không có nhận xét
 
-            // Gọi hàm static API
-            String result = Database.apiSubmitRating(
-                    nguoiDanhGia, buoiId, loaiDanhGia, diemSo, nguoiDuocDg, noiDung
-            );
+        // Gọi API PostgreSQL
+        String resultJson = Database.apiSubmitRating(
+                nguoiDanhGia, buoiId, loaiDanhGia, diemSo, nguoiDuocDg, noiDung
+        );
 
-            // Kiểm tra kết quả trả về (tùy vào API, ví dụ trả về "OK" nếu thành công)
-            return result != null && result.equalsIgnoreCase("OK");
-
-        } catch (Exception e) {
-            System.err.println("❌ Lỗi khi gửi đánh giá: " + e.getMessage());
-            return false;
+        // Kiểm tra kết quả trả về có dạng: {"status":"rated"}
+        if (resultJson != null && resultJson.trim().startsWith("{")) {
+            // Dùng regex hoặc parse đơn giản để kiểm tra status
+            return resultJson.contains("\"status\"") && resultJson.contains("\"rated\"");
         }
+
+        return false;
+
+    } catch (Exception e) {
+        System.err.println("Lỗi khi gửi đánh giá: " + e.getMessage());
+        return false;
     }
+}
 }

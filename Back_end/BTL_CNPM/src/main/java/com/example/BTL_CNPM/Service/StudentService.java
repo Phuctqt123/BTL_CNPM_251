@@ -49,14 +49,19 @@ public class StudentService {
     // làm mẫu để chạy maven thử
     public boolean phan_hoi(Map<String, Object> body) {
         try {
-            String nguoiDanhGia = body.get("nguoiDanhGia").toString(); 
-            int buoiId = ((Number) body.get("buoiId")).intValue();     
-            int diemSo = ((Number) body.get("diemSo")).intValue();     
-            String noiDung = body.get("noiDung").toString();         
+            // Lấy dữ liệu từ body
+            String nguoiDanhGia = body.get("nguoiDanhGia").toString();   // Key_user sinh viên
+            int buoiId = ((Number) body.get("buoiId")).intValue();       // ID buổi
+            int diemSo = ((Number) body.get("diemSo")).intValue();       // Điểm 1-5
+            String noiDung = body.containsKey("noiDung") && body.get("noiDung") != null
+                            ? body.get("noiDung").toString()
+                            : null; // Nhận xét (có thể null)
 
+            // Cố định cho phản hồi của sinh viên về buổi
             String loaiDanhGia = "SV_ve_Buoi";
-            String nguoiDuocDg = null;
+            String nguoiDuocDg = null; // Không có người được đánh giá
 
+            // Gọi API PostgreSQL
             String result = Database.apiSubmitRating(
                     nguoiDanhGia,
                     buoiId,
@@ -66,10 +71,11 @@ public class StudentService {
                     noiDung
             );
 
-            return result != null ;
+            // Kiểm tra chính xác kết quả trả về: {"status":"rated"}
+            return result != null && result.trim().equals("{\"status\":\"rated\"}");
 
         } catch (Exception e) {
-            System.err.println("❌ Lỗi khi sinh viên gửi phản hồi: " + e.getMessage());
+            System.err.println("Lỗi khi sinh viên gửi phản hồi: " + e.getMessage());
             return false;
         }
     }
