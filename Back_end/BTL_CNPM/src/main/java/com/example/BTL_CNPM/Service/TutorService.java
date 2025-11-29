@@ -38,7 +38,7 @@ public class TutorService {
     public List<Map<String, Object>> get_dssinhvien(int id) {
         try {
             String json = Database.getStudentsInSession(id);
-            return JSONUtil.toMap(json);
+            return JSONUtil.toMap2(json);
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi lấy thông tin : " + e.getMessage());
             return new ArrayList<>(); // trả về map rỗng nếu lỗi
