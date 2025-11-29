@@ -121,7 +121,7 @@ public class TutorController {
         "noiDung": "Buổi học rất hiệu quả, học viên chăm chú và tích cực tham gia."
     }
     */
-    @GetMapping("/reviews")
+    @PostMapping("/reviews")
     public boolean TutorReviews(@RequestBody Map<String, Object> body) {
         TutorService service = new TutorService();
         return service.guidanhgia(body);
