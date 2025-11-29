@@ -127,7 +127,7 @@ public class TutorController {
         return service.guidanhgia(body);
     }
 
-    @GetMapping("/student/{sessionId}")
+    @GetMapping("/students/{sessionId}")
     public List<Map<String, Object>> getliststudent(@PathVariable int sessionId) {
         TutorService service = new TutorService();
         return service.get_dssinhvien(sessionId);
