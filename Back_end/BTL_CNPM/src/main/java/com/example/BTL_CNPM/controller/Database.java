@@ -234,47 +234,27 @@ public class Database {
             throw new Exception(e.getMessage());
         }
     }
-
-    // 11. Đăng ký buổi tư vấn
-    
     public static String apiStudentRegisterSession(String svKey, int buoiId) throws Exception {
-        String sql = "{ ? = call api_student_register_session(?, ?) }";
+        // Cú pháp DUY NHẤT đúng cho function trong PostgreSQL
+        String sql = "{ ? = call api_student_register_session(?, ?) }";   // KHÔNG có từ "call"
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
             CallableStatement cs = conn.prepareCall(sql)) {
 
-            // 1. Đăng ký tham số trả về (PostgreSQL JSONB → dùng Types.OTHER)
-            cs.registerOutParameter(1, Types.OTHER);
-
-            // 2. Set các tham số đầu vào
+            cs.registerOutParameter(1, Types.OTHER);  // hoặc Types.VARCHAR cũng được
             cs.setString(2, svKey);
             cs.setInt(3, buoiId);
 
-            // 3. Thực thi
             cs.execute();
 
-            // 4. Lấy kết quả
             Object result = cs.getObject(1);
-
-            if (result == null) {
-                return null;
+            if (result instanceof org.postgresql.util.PGobject pg) {
+                return pg.getValue();
             }
-
-            // 5. Xử lý đúng kiểu dữ liệu JSONB từ PostgreSQL
-            if (result instanceof org.postgresql.util.PGobject pgObj) {
-                return pgObj.getValue(); // Đây là cách chuẩn nhất
-            }
-
-            // Một số driver cũ hoặc cấu hình khác có thể trả về String trực tiếp
             return result.toString();
 
         } catch (SQLException e) {
-            // Ghi log chi tiết + ném lại thông báo rõ ràng cho frontend
-            throw new Exception(
-                String.format("Lỗi khi sinh viên (key=%s) đăng ký buổi tư vấn ID=%d: %s", 
-                            svKey, buoiId, e.getMessage()), 
-                e
-            );
+            throw new Exception("Lỗi đăng ký buổi tư vấn: " + e.getMessage(), e);
         }
     }
 
