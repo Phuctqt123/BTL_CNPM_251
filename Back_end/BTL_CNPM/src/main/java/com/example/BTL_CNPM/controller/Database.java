@@ -243,28 +243,38 @@ public class Database {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
             CallableStatement cs = conn.prepareCall(sql)) {
 
-            // Đăng ký tham số trả về là JSONB
+            // 1. Đăng ký tham số trả về (PostgreSQL JSONB → dùng Types.OTHER)
             cs.registerOutParameter(1, Types.OTHER);
+
+            // 2. Set các tham số đầu vào
             cs.setString(2, svKey);
             cs.setInt(3, buoiId);
 
+            // 3. Thực thi
             cs.execute();
 
+            // 4. Lấy kết quả
             Object result = cs.getObject(1);
+
             if (result == null) {
                 return null;
             }
 
-            // XỬ LÝ CHÍNH XÁC: PostgreSQL trả JSONB → PGobject hoặc String
-            if (result instanceof org.postgresql.util.PGobject) {
-                return ((org.postgresql.util.PGobject) result).getValue();
+            // 5. Xử lý đúng kiểu dữ liệu JSONB từ PostgreSQL
+            if (result instanceof org.postgresql.util.PGobject pgObj) {
+                return pgObj.getValue(); // Đây là cách chuẩn nhất
             }
 
-            // Trường hợp driver trả trực tiếp String (một số phiên bản)
+            // Một số driver cũ hoặc cấu hình khác có thể trả về String trực tiếp
             return result.toString();
 
         } catch (SQLException e) {
-            throw new Exception("Lỗi đăng ký buổi tư vấn (ID=" + buoiId + "): " + e.getMessage(), e);
+            // Ghi log chi tiết + ném lại thông báo rõ ràng cho frontend
+            throw new Exception(
+                String.format("Lỗi khi sinh viên (key=%s) đăng ký buổi tư vấn ID=%d: %s", 
+                            svKey, buoiId, e.getMessage()), 
+                e
+            );
         }
     }
 

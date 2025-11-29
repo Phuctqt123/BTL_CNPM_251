@@ -20,8 +20,7 @@ public class Booking_Service {
 
             String resultJson = Database.apiStudentRegisterSession(svKey, buoiId);
 
-            // Dùng hàm mới: toListMapFromObject – chuyên xử lý JSON object → List (1 phần tử)
-            return JSONUtil.toListMapFromObject(resultJson);
+            return JSONUtil.toMap(resultJson);
 
         } catch (Exception e) {
             System.err.println("Lỗi khi sinh viên đăng ký buổi tư vấn: " + e.getMessage());
