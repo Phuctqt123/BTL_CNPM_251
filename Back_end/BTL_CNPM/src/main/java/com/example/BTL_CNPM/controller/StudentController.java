@@ -52,7 +52,7 @@ public class StudentController {
      
      */
     @PostMapping("/session/register")
-    public boolean registerSession(@RequestBody Map<String, Object> body) {
+    public List<Map<String, Object>> registerSession(@RequestBody Map<String, Object> body) {
         Booking_Service service = new Booking_Service();
         return service.booking_Student(body);
     }

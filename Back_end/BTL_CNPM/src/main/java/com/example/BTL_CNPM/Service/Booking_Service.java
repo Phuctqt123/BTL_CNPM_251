@@ -5,29 +5,31 @@
  */
 package com.example.BTL_CNPM.Service;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.example.BTL_CNPM.controller.Database;
 public class Booking_Service {
 
     // 1. booking_Student
-    public boolean booking_Student(Map<String, Object> body) {
+    public List<Map<String, Object>> booking_Student(Map<String, Object> body) {
         try {
             String svKey = body.get("svKey").toString();
             int buoiId = ((Number) body.get("buoiId")).intValue();
 
             String result = Database.apiStudentRegisterSession(svKey, buoiId);
 
-            return result != null;
+            return JSONUtil.toMap(result);
 
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi sinh viên đăng ký buổi tư vấn: " + e.getMessage());
-            return false;
+            return new ArrayList<>();
         }
     }
 
     // 2. booking_Tutor
-    public boolean booking_Tutor(Map<String, Object> body) {
+    public List<Map<String, Object>> booking_Tutor(Map<String, Object> body) {
         try {
             String gvKey = body.get("gvKey").toString();           
             String tenBuoi = body.get("tenBuoi").toString();
@@ -62,11 +64,11 @@ public class Booking_Service {
                     slToiDa
             );
 
-            return result != null;
+            return JSONUtil.toMap(result);
 
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi tạo buổi tư vấn: " + e.getMessage());
-            return false;
+            return new ArrayList<>();
         }
     }
     

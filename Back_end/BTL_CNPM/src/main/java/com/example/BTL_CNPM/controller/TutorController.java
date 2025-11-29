@@ -47,7 +47,7 @@ public class TutorController {
 
      */
     @PostMapping("/session/create")
-    public boolean createSession(@RequestBody Map<String, Object> body) {
+    public List<Map<String, Object>> createSession(@RequestBody Map<String, Object> body) {
         Booking_Service service = new Booking_Service();
         return service.booking_Tutor(body);
     }
