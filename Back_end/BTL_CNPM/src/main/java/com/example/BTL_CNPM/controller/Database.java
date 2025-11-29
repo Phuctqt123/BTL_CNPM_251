@@ -482,35 +482,49 @@ public class Database {
             throw new Exception("Lỗi khi lấy feedback sinh viên: " + e.getMessage(), e);
         }
     }
-    
+
+    /**
+     * Gọi hàm PostgreSQL: api_get_students_in_session(p_buoi_id INTEGER) 
+     * Hàm này trả về JSONB
+     */
     public static String getStudentsInSession(int buoiId) throws Exception {
-        String sql = "SELECT api_get_students_in_session(?) AS result";
+        String sql = "{ ? = call api_get_students_in_session(?) }";  // Dùng CALL đúng chuẩn
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            CallableStatement cs = conn.prepareCall(sql)) {
 
-            ps.setInt(1, buoiId);
+            // 1. Tham số trả về (JSONB)
+            cs.registerOutParameter(1, Types.OTHER);   // PostgreSQL JSONB → java.sql.Types.OTHER
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    // Lấy cột JSONB dưới dạng String
-                    String jsonResult = rs.getString("result");
+            // 2. Tham số đầu vào
+            cs.setInt(2, buoiId);
 
-                    // Nếu có lỗi từ hàm SQL (ví dụ: buổi không tồn tại)
-                    if (jsonResult != null && jsonResult.contains("\"error\"")) {
-                        // Vẫn trả về nguyên bản để frontend xử lý
-                        return jsonResult;
-                    }
+            // 3. Thực thi
+            cs.execute();
 
-                    // Nếu thành công: jsonResult sẽ là dạng {"27": [...]}
-                    return jsonResult != null ? jsonResult : "{}";
-                }
+            // 4. Lấy kết quả
+            Object result = cs.getObject(1);
+
+            // Nếu hàm SQL trả về NULL → trả về "{}" để frontend dễ xử lý
+            if (result == null) {
+                return "{}";
             }
-        } catch (SQLException e) {
-            throw new Exception("Lỗi khi lấy danh sách sinh viên buổi tư vấn ID = " + buoiId + ": " + e.getMessage(), e);
-        }
 
-        return "{}"; // Trường hợp không có kết quả (không nên xảy ra)
+            String jsonResult = result.toString();
+
+            // (Tùy chọn) Nếu bạn muốn ném lỗi khi hàm SQL báo error
+            // if (jsonResult.contains("\"error\"")) {
+            //     throw new Exception("API error: " + jsonResult);
+            // }
+
+            return jsonResult;
+
+        } catch (SQLException e) {
+            throw new Exception(
+                "Lỗi khi gọi api_get_students_in_session(buoi_id = " + buoiId + "): " + e.getMessage(), 
+                e
+            );
+        }
     }
 
 }
