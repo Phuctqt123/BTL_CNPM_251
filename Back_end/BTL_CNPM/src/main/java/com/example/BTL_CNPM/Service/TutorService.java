@@ -35,6 +35,16 @@ public class TutorService {
         }
     }
 
+    public List<Map<String, Object>> get_dssinhvien(int id) {
+        try {
+            String json = Database.getStudentsInSession(id);
+            return JSONUtil.toMap(json);
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi lấy thông tin : " + e.getMessage());
+            return new ArrayList<>(); // trả về map rỗng nếu lỗi
+        }
+    }
+
 
     // 4.1. Xem_tailieu
     public List<Map<String, Object>> get_dstailieu(int id) {

@@ -482,5 +482,35 @@ public class Database {
             throw new Exception("Lỗi khi lấy feedback sinh viên: " + e.getMessage(), e);
         }
     }
+    
+    public static String getStudentsInSession(int buoiId) throws Exception {
+        String sql = "SELECT api_get_students_in_session(?) AS result";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, buoiId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Lấy cột JSONB dưới dạng String
+                    String jsonResult = rs.getString("result");
+
+                    // Nếu có lỗi từ hàm SQL (ví dụ: buổi không tồn tại)
+                    if (jsonResult != null && jsonResult.contains("\"error\"")) {
+                        // Vẫn trả về nguyên bản để frontend xử lý
+                        return jsonResult;
+                    }
+
+                    // Nếu thành công: jsonResult sẽ là dạng {"27": [...]}
+                    return jsonResult != null ? jsonResult : "{}";
+                }
+            }
+        } catch (SQLException e) {
+            throw new Exception("Lỗi khi lấy danh sách sinh viên buổi tư vấn ID = " + buoiId + ": " + e.getMessage(), e);
+        }
+
+        return "{}"; // Trường hợp không có kết quả (không nên xảy ra)
+    }
 
 }
