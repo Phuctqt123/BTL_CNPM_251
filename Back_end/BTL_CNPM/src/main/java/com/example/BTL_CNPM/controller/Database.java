@@ -237,20 +237,34 @@ public class Database {
 
     // 11. Đăng ký buổi tư vấn
     
-    public static String apiStudentRegisterSession(String svKey, int buoiId) throws Exception{
-        String sql = "{? = call api_student_register_session(?,?)}";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
-             CallableStatement cs = conn.prepareCall(sql)) {
+    public static String apiStudentRegisterSession(String svKey, int buoiId) throws Exception {
+        String sql = "{ ? = call api_student_register_session(?, ?) }";
 
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            CallableStatement cs = conn.prepareCall(sql)) {
+
+            // Đăng ký tham số trả về là JSONB
             cs.registerOutParameter(1, Types.OTHER);
             cs.setString(2, svKey);
             cs.setInt(3, buoiId);
-            cs.execute();
-            Object result = cs.getObject(1);
-            return result != null ? result.toString() : null;
 
-        } catch(Exception e) {
-            throw new Exception(e.getMessage());
+            cs.execute();
+
+            Object result = cs.getObject(1);
+            if (result == null) {
+                return null;
+            }
+
+            // XỬ LÝ CHÍNH XÁC: PostgreSQL trả JSONB → PGobject hoặc String
+            if (result instanceof org.postgresql.util.PGobject) {
+                return ((org.postgresql.util.PGobject) result).getValue();
+            }
+
+            // Trường hợp driver trả trực tiếp String (một số phiên bản)
+            return result.toString();
+
+        } catch (SQLException e) {
+            throw new Exception("Lỗi đăng ký buổi tư vấn (ID=" + buoiId + "): " + e.getMessage(), e);
         }
     }
 

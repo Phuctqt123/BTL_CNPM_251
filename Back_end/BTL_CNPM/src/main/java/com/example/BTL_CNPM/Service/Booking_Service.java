@@ -18,12 +18,13 @@ public class Booking_Service {
             String svKey = body.get("svKey").toString();
             int buoiId = ((Number) body.get("buoiId")).intValue();
 
-            String result = Database.apiStudentRegisterSession(svKey, buoiId);
+            String resultJson = Database.apiStudentRegisterSession(svKey, buoiId);
 
-            return JSONUtil.toMap(result);
+            // Dùng hàm mới: toListMapFromObject – chuyên xử lý JSON object → List (1 phần tử)
+            return JSONUtil.toListMapFromObject(resultJson);
 
         } catch (Exception e) {
-            System.err.println("❌ Lỗi khi sinh viên đăng ký buổi tư vấn: " + e.getMessage());
+            System.err.println("Lỗi khi sinh viên đăng ký buổi tư vấn: " + e.getMessage());
             return new ArrayList<>();
         }
     }

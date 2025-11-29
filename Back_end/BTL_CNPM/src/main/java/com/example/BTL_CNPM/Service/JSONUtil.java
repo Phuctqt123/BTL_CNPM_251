@@ -84,6 +84,30 @@ public class JSONUtil {
         // Trả về danh sách rỗng nếu có lỗi
         return new ArrayList<>();
     }
+    public static List<Map<String, Object>> toListMapFromObject(String json) {
+        if (json == null || json.trim().isEmpty() || json.trim().equals("{}")) {
+            return new ArrayList<>();
+        }
+
+        try {
+            Map<String, Object> map = mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+
+            List<Map<String, Object>> result = new ArrayList<>();
+            result.add(map);
+            return result;
+
+        } catch (JsonProcessingException e) {
+            // Lỗi duy nhất có thể xảy ra ở đây: JSON không hợp lệ
+            System.err.println("JSON không hợp lệ khi parse đăng ký buổi: " + json);
+            System.err.println("Chi tiết lỗi: " + e.getMessage());
+            return new ArrayList<>();
+
+        } catch (IllegalArgumentException e) {
+            // Rất hiếm, nhưng có thể xảy ra nếu TypeReference lỗi
+            System.err.println("Lỗi cấu hình TypeReference: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
 
 
 }
