@@ -20,7 +20,7 @@
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
       overflow-x: hidden;
       color: #333;
@@ -174,13 +174,13 @@
     100% { transform: translateX(-100%); }
   }
   /* Nếu có header iframe, cần điều chỉnh lại để không bị chồng */
-  iframe[src="header.html"] {
+  iframe[src="../header.html"] {
     margin-top: 35px !important;
   }
   </style>
 </head>
 <body>
-  <iframe src="header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
+  <iframe src="../header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
   <div class="top-notification-bar">
         <div class="ticker-wrapper">
             <div class="ticker" id="ticker">
@@ -189,29 +189,71 @@
         </div>
     </div>
     <script>
-        // Hàm lấy thông báo từ API
-        async function fetchNotificationFromAPI(studentId) {
-            try {
-                const response = await fetch(`https://backend-production-42b5.up.railway.app/api/Admin/notifications/${studentId}`);
-                if (!response.ok) throw new Error("Không thể lấy thông báo");
-                const data = await response.json(); // { "notify": "..." }
-                return data.notify || "Không có thông báo mới";
-            } catch (err) {
-                console.error(err);
-                return "Lỗi khi lấy thông báo";
-            }
-        }
+      let thongtin = null;
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticket = urlParams.get('ticket');
+      const serviceUrl = window.location.href.split('?')[0];
 
-        // Cập nhật HTML ticker
-        async function updateTicker(studentId) {
-            const tickerDiv = document.querySelector("#ticker");
-            const message = await fetchNotificationFromAPI(studentId);
-            tickerDiv.innerHTML = `<span><i class="fas fa-bell"></i> ${message}</span>`;
-        }
+      function removeTicketFromUrl() {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('ticket');  // chỉ xóa ticket
+          window.history.replaceState({}, document.title, url.toString());
+      }
 
-        // Gọi hàm với ID sinh viên
-        updateTicker("PDT");
-    </script>
+      async function run() {
+
+          if (!ticket) {
+              window.location.href =
+                  `https://casserver-production.up.railway.app/cas/login?service=${encodeURIComponent(serviceUrl)}`;
+              return; // dừng luôn không chạy tiếp
+          }
+
+          // ⏳ CHỜ fetch xử lý xong
+          const response = await fetch('https://backend-production-42b5.up.railway.app/api/Admin/userinfo', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ticket, service: serviceUrl.split('?')[0] })
+          });
+
+          const data = await response.json();
+
+          if (!data.success) {
+              removeTicketFromUrl();
+              return null;
+          }
+
+          let thongtin2 = data.attributes;
+
+          removeTicketFromUrl();
+
+          await updateTicker(thongtin2.keyuser);
+          return data.attributes;
+          
+      }
+
+      async function fetchNotificationFromAPI(studentId) {
+          try {
+              const response = await fetch(`https://backend-production-42b5.up.railway.app/api/Admin/notifications/${studentId}`);
+              if (!response.ok) throw new Error("Không thể lấy thông báo");
+              const data = await response.json();
+              return data.notify || "Không có thông báo mới";
+          } catch (err) {
+              console.error(err);
+              return "Lỗi khi lấy thông báo";
+          }
+      }
+
+      async function updateTicker(studentId) {
+          const tickerDiv = document.querySelector("#ticker");
+          const message = await fetchNotificationFromAPI(studentId);
+          tickerDiv.innerHTML = `<span><i class="fas fa-bell"></i> ${message}</span>`;
+      }
+      (async () => {
+            thongtin = await run();
+        })();
+      
+  </script>
+
   <div class="main-container">
     <section class="welcome-section">
       <div class="welcome-text">📚 Chào mừng đến Phòng Đào Tạo</div>
@@ -222,14 +264,14 @@
     <section class="stats-section" id="stats-container"></section>
 
     <main class="main">
-      <a href="PDT_Xemdstuvan.html" class="card">
+      <a href="/pdt/danhsachtuvan" class="card">
         <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
         <h3>Danh sách buổi tư vấn</h3>
         <p>Xem và quản lý các buổi tư vấn của sinh viên</p>
         <div style="font-size: 12px; color: #0388B4; font-weight: 600;">Khám phá →</div>
       </a>
 
-      <a href="PDT_Xemdssinhvien.html" class="card">
+      <a href="/pdt/danhsachsinhvien" class="card">
         <div class="card-icon"><i class="fas fa-users"></i></div>
         <h3>Danh sách sinh viên</h3>
         <p>Xem thông tin toàn bộ sinh viên trong hệ thống</p>
@@ -245,12 +287,12 @@
   </div>
 
   <div class="footer-wrapper">
-    <iframe src="footer.html" style="width: 100%; border: none; overflow: hidden; display: block; height: 100%;"></iframe>
+    <iframe src="../footer.html" style="width: 100%; border: none; overflow: hidden; display: block; height: 100%;"></iframe>
   </div>
 
   <!-- Load dữ liệu từ JS -->
   <!-- Load dữ liệu và render -->
-<script src="data.js"></script>
+<script type="module" src="/pdt/data"></script>
   <script>
     const statsContainer = document.getElementById("stats-container");
     const updatesContainer = document.getElementById("updates-container");
@@ -319,7 +361,7 @@
       showLoading();
 
       try {
-        const data = await getDashboardData(); // Gọi API từ data.js
+        const data = await getDashboardData(); 
         
         // Render khi có dữ liệu
         renderStats(data.stats);

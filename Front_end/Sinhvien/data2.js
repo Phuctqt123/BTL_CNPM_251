@@ -1,39 +1,49 @@
-// data.js - Dữ liệu thông tin cá nhân sinh viên
-const studentProfile = {
-  personalInfo: {
-    "Họ và tên lót": "Trần Khánh",
-    "Tên": "Ann",
-    "Ngày sinh": "05/01/2005",
-    "Giới tính": "Nữ",
-    "MSSV (Mã số sinh viên)": "2310037",
-    "Số điện thoại": "0987654321",
-    "Email sinh viên": "an.trankhanh@hcmut.edu.vn",
-    "Email cá nhân": "khanhan501@gmail.com",
-    "Quốc tịch": "Việt Nam",
-    "Tôn giáo": "Không",
-    "Dân tộc": "Kinh",
-    "Thời điểm bắt đầu": "31/8/2023"
-  },
-  residenceInfo: {
-    "Quốc gia": "Việt Nam",
-    "Tỉnh/Thành phố": "Bình Thuận",
-    "Quận/Huyện": "Phan Thiết",
-    "Phường/Xã": "--",
-    "Số nhà": "--"
+import StudentApi from "../api/StudentAPI.js";
+
+async function getStudentProfile(id) {
+  try{
+    const data = await StudentApi.getProfile(id);
+
+    // API trả về dạng: [ { ... } ]
+    const user = data && data.length > 0 ? data[0] : null;
+
+    if (!user) {
+      console.error("Không tìm thấy dữ liệu từ API");
+      return null;
+    }
+
+    // Mapping về đúng format giao diện đang dùng
+    const studentProfile = {
+      personalInfo: {
+        "Họ và tên lót": user.Ho_va_ten_lot || "",
+        "Tên": user.Ten || "",
+        "Ngày sinh": user.Ngay_sinh || "",
+        "Giới tính": user.Gioi_tinh || "",
+        "MSSV (Mã số sinh viên)": user.Key_user || "",
+        "Số điện thoại": user.Sdt || "",
+        "Email sinh viên": user.Email || "",
+        "Email cá nhân": user.Email || "",   // nếu backend không tách email cá nhân
+        "Quốc tịch": user.Quoc_tich || "",
+        "Tôn giáo": user.Ton_giao || "",
+        "Dân tộc": user.Dan_toc || "",
+        "Thời điểm bắt đầu": user.Start_time || ""
+      },
+
+      residenceInfo: {
+        "Quốc gia": user.Quoc_gia || "",
+        "Tỉnh/Thành phố": user.Tinh || "",
+        "Quận/Huyện": user.Huyen || "--",     // backend chưa có, để "--"
+        "Phường/Xã": user.Xa || "--",
+        "Số nhà": user.So_nha || "--"
+      }
+    };
+
+    return studentProfile;
+
+  } catch (error) {
+    console.error("Lỗi khi xử lý profile sinh viên:", error);
+    return null;
   }
-};
-
-// Hàm giả lập API (giống như các file trước)
-function delay(ms = 300) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function getStudentProfile() {
-  await delay();
-  return studentProfile;
-}
-
-// Export global để HTML dùng được
-if (typeof window !== 'undefined') {
-  window.getStudentProfile = getStudentProfile;
-}
+window.getStudentProfile = getStudentProfile;

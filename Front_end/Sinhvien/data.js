@@ -2,25 +2,25 @@
 
 // 1. Video configuration
 const videoConfig = {
-    src: "Video_m3u8/videoplayback-1.m3u8"
+    src: "/Video_m3u8/videoplayback-1.m3u8"
 };
 
 // 2. Navigation Cards
 const navCards = [
     {
-        href: "SVHS_thongtincanhan.html",
+        href: "/sv/thongtincanhan",
         icon: "fas fa-user-circle",
         title: "Thông Tin Cá Nhân",
         description: "Xem và cập nhật thông tin cá nhân, hồ sơ sinh viên của bạn"
     },
     {
-        href: "SVHS_dangkybuoituvan.html",
+        href: "/sv/dangkybuoituvan",
         icon: "fas fa-calendar-check",
         title: "Đăng Ký Buổi Tư Vấn",
         description: "Tìm và đăng ký các buổi tư vấn, hỗ trợ học tập phù hợp với bạn"
     },
     {
-        href: "SVHS_lichsudangky.html",
+        href: "/sv/lichsudangky",
         icon: "fas fa-history",
         title: "Lịch Sử Đăng Ký",
         description: "Xem lịch sử đăng ký buổi tư vấn và các buổi học đã tham gia"
@@ -42,3 +42,6 @@ const notifications = [
         text: 'Tài liệu có thể bạn quan tâm "Tài liệu UML" đã đăng tải.'
     }
 ];
+window.videoConfig = videoConfig;
+window.navCards=navCards;
+window.notifications=notifications;

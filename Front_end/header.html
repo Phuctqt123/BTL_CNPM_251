@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ... (GIỮ NGUYÊN CSS CŨ CỦA BẠN) ... */
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0388B4 0%, #026689 100%);
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(3, 136, 180, 0.3);
+      animation: slideDown 0.5s ease;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .header-left:hover {
+      transform: translateX(5px);
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      transition: all 0.4s ease;
+    }
+
+    .header-left:hover .logo {
+      transform: rotate(360deg) scale(1.1);
+    }
+
+    .header-title .subtitle {
+      font-size: 12px;
+      opacity: 0.9;
+      font-weight: 600;
+    }
+
+    .header-title .main-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    /* ========= PHẦN USER + ĐĂNG XUẤT ========= */
+    .header-right {
+      position: relative;
+    }
+
+    .user-icon {
+      font-size: 28px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .user-icon:hover {
+      transform: scale(1.2) rotate(12deg);
+      filter: brightness(1.4);
+    }
+
+    /* Dropdown chỉ có Đăng xuất */
+    .logout-dropdown {
+      position: absolute;
+      top: 58px;
+      right: 0;
+      background: white;
+      color: #e74c3c;
+      min-width: 160px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.25s ease;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .header-right:hover .logout-dropdown,
+    .header-right:focus-within .logout-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      animation: fadeInUp 0.25s ease;
+    }
+
+    .logout-item {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14.5px;
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+
+    .logout-item:hover {
+      background: #fdf2f2;
+    }
+
+    .logout-item i {
+      font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 15px 20px;
+      }
+
+      .logo {
+        width: 40px;
+        height: 40px;
+      }
+
+      .header-title .main-title {
+        font-size: 16px;
+      }
+
+      .logout-dropdown {
+        top: 52px;
+        right: 5px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="header-left" onclick="goHome()">
+      <img src="logoBK.png" alt="Logo BK HCMUT" class="logo">
+      <div class="header-title">
+        <div class="subtitle">HỆ THỐNG TƯ VẤN</div>
+        <div class="main-title">Bách Khoa HCM (HCMUT)</div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <i class="fas fa-user-circle user-icon" aria-label="Tài khoản"></i>
+
+      <div class="logout-dropdown">
+        <div class="logout-item" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Đăng xuất</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function goHome() {
+      const parentWindow = window.parent || window;
+      const { origin, pathname } = parentWindow.location;
+      const normalizedPath = pathname.toLowerCase();
+
+      let targetPath = '/';
+      if (normalizedPath.includes('/tutor/')) {
+        targetPath = '/tutor/home';
+      } else if (normalizedPath.includes('/sv/')) {
+        targetPath = '/sv/home';
+      } else if (normalizedPath.includes('/pdt/')) {
+        targetPath = '/pdt/home';
+      }
+
+      parentWindow.location.href = `${origin}${targetPath}`;
+    }
+
+    function logout() {
+      if (confirm('Bạn có chắc muốn đăng xuất không?')) {
+        // Cách chắc chắn nhất với Railway CAS
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://casserver-production.up.railway.app/cas/logout';
+        form.target = '_blank'; // mở tab mới (tránh bị chặn redirect)
+
+        // Một số CAS cần thêm field ẩn để logout sạch hơn
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'execution'; // không bắt buộc nhưng an toàn
+        input.value = '';
+        form.appendChild(input);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+
+        // Sau 2 giây quay lại trang chủ sạch
+        setTimeout(() => {
+          // Trỏ về index.html thay vì root
+          const cleanUrl = window.location.origin + '/index.html';
+          window.parent.location.replace(cleanUrl);
+        }, 2000);
+      }
+    }
+
+    // Vẫn giữ phần dọn ticket khi load trang
+    window.addEventListener('load', () => {
+      const url = new URL(window.location);
+      if (url.searchParams.has('ticket')) {
+        url.searchParams.delete('ticket');
+        window.history.replaceState({}, '', url.pathname);
+      }
+    });
+  </script>
+</body>
+
+</html>

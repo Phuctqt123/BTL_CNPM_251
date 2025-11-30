@@ -34,85 +34,133 @@
 </head>
 <body>
   <!-- Header -->
-  <iframe src="header.html" style="width:100%;border:none;overflow:hidden;display:block;"></iframe>
+  <iframe src="../header.html" style="width:100%;border:none;overflow:hidden;display:block;"></iframe>
+
+  <!-- CAS Login Script -->
+  <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticket = urlParams.get('ticket');
+      const serviceUrl = window.location.href;
+
+      function removeTicketFromUrl() {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('ticket');
+          window.history.replaceState({}, document.title, url.toString());
+      }
+
+      async function runCAS() {
+          if (!ticket) {
+              window.location.href = `https://casserver-production.up.railway.app/cas/login?service=${encodeURIComponent(serviceUrl)}`;
+              return;
+          }
+
+          const response = await fetch('https://backend-production-42b5.up.railway.app/api/Admin/userinfo', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ticket, service: serviceUrl.split('?')[0] })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+              window.thongtin = data.attributes;
+              removeTicketFromUrl();
+          }
+      }
+
+      // Chạy ngay khi load
+      runCAS();
+  </script>
 
   <!-- Main Content -->
-  <div class="main-container" id="mainContent">
-    <!-- Nội dung sẽ được render bằng JavaScript từ data2.js -->
-  </div>
+  <div class="main-container" id="mainContent"></div>
 
   <!-- Footer -->
   <div class="footer-wrapper">
-    <iframe src="footer.html" style="width:100%;border:none;overflow:hidden;display:block;height:100%;"></iframe>
+    <iframe src="../footer.html" style="width:100%;border:none;overflow:hidden;display:block;height:100%;"></iframe>
   </div>
 
-  <!-- Load dữ liệu -->
-  <script src="data2.js"></script>
+  <!-- Load data2.js -->
+  <script type="module" src="/sv/data2"></script>
+
+  <!-- KHỞI ĐỘNG ỔN ĐỊNH 100% – CHỈ ĐOẠN NÀY THÔI! -->
   <script>
-    // === CHỈ SỬA PHẦN NÀY – GIỮ NGUYÊN GIAO DIỆN ===
-    async function renderProfile() {
+    async function startProfileWhenReady() {
       const container = document.getElementById('mainContent');
-      
+
+      // Loading ban đầu
+      container.innerHTML = `
+        <div style="text-align:center;padding:80px 20px;color:#0388B4;font-size:1.2rem;">
+          <i class="fas fa-spinner fa-spin" style="font-size:32px;"></i><br><br>
+          Đang xác thực và tải thông tin cá nhân...
+        </div>`;
+
+      // 1. Đợi CAS xong
+      while (!window.thongtin || !window.thongtin.keyuser) {
+        await new Promise(r => setTimeout(r, 100));
+      }
+
+      // 2. Đợi data2.js load xong
+      while (typeof window.getStudentProfile !== 'function') {
+        await new Promise(r => setTimeout(r, 100));
+      }
+
+      // Bắt đầu tải dữ liệu thật
       try {
-        // Lấy dữ liệu từ data2.js (có hàm getStudentProfile)
-        const profile = await getStudentProfile();
+        container.innerHTML = `
+          <div style="text-align:center;padding:60px 20px;color:#666;">
+            <i class="fas fa-spinner fa-spin"></i><br><br>
+            Đang tải thông tin cá nhân...
+          </div>`;
+
+        const profile = await window.getStudentProfile(window.thongtin.keyuser);
 
         container.innerHTML = '';
 
-        // Tạo section Thông tin cá nhân
-        const section1 = document.createElement('div');
-        section1.className = 'profile-section';
-        section1.innerHTML = `
-          <div class="section-title">User Thông Tin Cá Nhân</div>
-          <div class="info-grid"></div>
-        `;
-        const grid1 = section1.querySelector('.info-grid');
-        Object.entries(profile.personalInfo).forEach(([label, value]) => {
-          const item = document.createElement('div');
-          item.className = 'info-item';
-          item.innerHTML = `
-            <div class="info-label">${label}</div>
-            <div class="info-value">
-              ${value === null || value === undefined || value === '' || value === '--' 
-                ? '<span class="empty-field">-- (Chưa điền/Bỏ trống)</span>' 
-                : value}
-            </div>
-          `;
-          grid1.appendChild(item);
+        // Thông tin cá nhân
+        const sec1 = document.createElement('div');
+        sec1.className = 'profile-section';
+        sec1.innerHTML = `<div class="section-title">Thông Tin Cá Nhân</div><div class="info-grid"></div>`;
+        const grid1 = sec1.querySelector('.info-grid');
+        Object.entries(profile.personalInfo || {}).forEach(([k, v]) => {
+          const val = (v == null || v === '' || v === '--') ? '<span class="empty-field">-- (Chưa điền)</span>' : v;
+          grid1.innerHTML += `
+            <div class="info-item">
+              <div class="info-label">${k}</div>
+              <div class="info-value">${val}</div>
+            </div>`;
         });
-        container.appendChild(section1);
+        container.appendChild(sec1);
 
-        // Tạo section Thông tin thường trú
-        const section2 = document.createElement('div');
-        section2.className = 'profile-section';
-        section2.innerHTML = `
-          <div class="section-title">Home Thông Tin Thường Trú</div>
-          <div class="info-grid"></div>
-        `;
-        const grid2 = section2.querySelector('.info-grid');
-        Object.entries(profile.residenceInfo).forEach(([label, value]) => {
-          const item = document.createElement('div');
-          item.className = 'info-item';
-          item.innerHTML = `
-            <div class="info-label">${label}</div>
-            <div class="info-value">
-              ${value === null || value === undefined || value === '' || value === '--' 
-                ? '<span class="empty-field">-- (Chưa điền/Bỏ trống)</span>' 
-                : value}
-            </div>
-          `;
-          grid2.appendChild(item);
+        // Thông tin thường trú
+        const sec2 = document.createElement('div');
+        sec2.className = 'profile-section';
+        sec2.innerHTML = `<div class="section-title">Thông Tin Thường Trú</div><div class="info-grid"></div>`;
+        const grid2 = sec2.querySelector('.info-grid');
+        Object.entries(profile.residenceInfo || {}).forEach(([k, v]) => {
+          const val = (v == null || v === '' || v === '--') ? '<span class="empty-field">-- (Chưa điền)</span>' : v;
+          grid2.innerHTML += `
+            <div class="info-item">
+              <div class="info-label">${k}</div>
+              <div class="info-value">${val}</div>
+            </div>`;
         });
-        container.appendChild(section2);
+        container.appendChild(sec2);
 
       } catch (err) {
-        container.innerHTML = '<div style="text-align:center;color:#e74c3c;padding:50px">Không thể tải thông tin cá nhân.</div>';
         console.error(err);
+        container.innerHTML = `
+          <div style="text-align:center;color:#e74c3c;padding:80px 20px;font-size:1.1rem;">
+            <i class="fas fa-exclamation-triangle" style="font-size:32px;"></i><br><br>
+            Không thể tải thông tin cá nhân.<br><br>
+            <a href="javascript:location.reload()" style="color:#0388B4;text-decoration:underline;font-weight:600;">
+              Tải lại trang
+            </a>
+          </div>`;
       }
     }
 
-    // Chạy khi trang load xong
-    document.addEventListener('DOMContentLoaded', renderProfile);
+    // CHẠY NGAY!
+    startProfileWhenReady();
   </script>
 </body>
 </html>

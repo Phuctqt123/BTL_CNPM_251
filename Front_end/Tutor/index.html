@@ -19,7 +19,7 @@
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
       overflow-x: hidden;
       color: #333;
@@ -272,8 +272,8 @@
 
     .weather {
       position: fixed;
-      top: 100px;
-      right: 20px;
+      top: 150px;
+      left: 20px;
       width: 240px;
       background: white;
       padding: 20px;
@@ -429,14 +429,14 @@
         100% { transform: translateX(-100%); }
       }
       /* Nếu có header iframe, cần điều chỉnh lại để không bị chồng */
-      iframe[src="header.html"] {
+      iframe[src="../header.html"] {
         margin-top: 35px !important;
       }
   </style>
 </head>
 <body>
   <!-- Header -->
-  <iframe src="header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
+  <iframe src="../header.html" style="width: 100%; border: none; overflow: hidden; display: block;"></iframe>
     <div class="top-notification-bar">
         <div class="ticker-wrapper">
             <div class="ticker" id="ticker">
@@ -445,29 +445,70 @@
         </div>
     </div>
     <script>
-        // Hàm lấy thông báo từ API
-        async function fetchNotificationFromAPI(studentId) {
-            try {
-                const response = await fetch(`https://backend-production-42b5.up.railway.app/api/Admin/notifications/${studentId}`);
-                if (!response.ok) throw new Error("Không thể lấy thông báo");
-                const data = await response.json(); // { "notify": "..." }
-                return data.notify || "Không có thông báo mới";
-            } catch (err) {
-                console.error(err);
-                return "Lỗi khi lấy thông báo";
-            }
-        }
+      let thongtin = null;
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticket = urlParams.get('ticket');
+      const serviceUrl = window.location.href;
 
-        // Cập nhật HTML ticker
-        async function updateTicker(studentId) {
-            const tickerDiv = document.querySelector("#ticker");
-            const message = await fetchNotificationFromAPI(studentId);
-            tickerDiv.innerHTML = `<span><i class="fas fa-bell"></i> ${message}</span>`;
-        }
+      function removeTicketFromUrl() {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('ticket');  // chỉ xóa ticket
+          window.history.replaceState({}, document.title, url.toString());
+      }
 
-        // Gọi hàm với ID sinh viên
-        updateTicker("GV001");
-    </script>
+      async function run() {
+
+          if (!ticket) {
+              window.location.href =
+                  `https://casserver-production.up.railway.app/cas/login?service=${encodeURIComponent(serviceUrl)}`;
+              return; // dừng luôn không chạy tiếp
+          }
+
+          // ⏳ CHỜ fetch xử lý xong
+          const response = await fetch('https://backend-production-42b5.up.railway.app/api/Admin/userinfo', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ticket, service: serviceUrl.split('?')[0] })
+          });
+
+          const data = await response.json();
+
+          if (!data.success) {
+              removeTicketFromUrl();
+              return null;
+          }
+
+          let thongtin2 = data.attributes;
+
+          removeTicketFromUrl();
+
+          await updateTicker(thongtin2.keyuser);
+          return data.attributes;
+          
+      }
+
+      async function fetchNotificationFromAPI(studentId) {
+          try {
+              const response = await fetch(`https://backend-production-42b5.up.railway.app/api/Admin/notifications/${studentId}`);
+              if (!response.ok) throw new Error("Không thể lấy thông báo");
+              const data = await response.json();
+              return data.notify || "Không có thông báo mới";
+          } catch (err) {
+              console.error(err);
+              return "Lỗi khi lấy thông báo";
+          }
+      }
+
+      async function updateTicker(studentId) {
+          const tickerDiv = document.querySelector("#ticker");
+          const message = await fetchNotificationFromAPI(studentId);
+          tickerDiv.innerHTML = `<span><i class="fas fa-bell"></i> ${message}</span>`;
+      }
+      (async () => {
+            thongtin = await run();
+        })();
+      
+  </script>
   <!-- Main Content -->
   <div class="main-container">
     <!-- Welcome Section -->
@@ -495,7 +536,7 @@
 
     <!-- Services Cards -->
     <main class="main">
-      <a href="tutor_thongtincanhan.html" class="card">
+      <a href="/tutor/thongtincanhan" class="card">
         <div class="card-icon">
         <i class="fas fa-user"></i>
         </div>
@@ -503,7 +544,7 @@
         <p>Xem và cập nhật thông tin giảng viên của bạn</p>
       </a>
 
-      <a href="tutor_taobuoituvan.html" class="card">
+      <a href="/tutor/taobuoituvan" class="card">
         <div class="card-icon">
           <i class="fas fa-calendar-plus"></i>
         </div>
@@ -511,7 +552,7 @@
         <p>Tạo lịch tư vấn mới cho sinh viên</p>
       </a>
 
-      <a href="tutor_xemlichsu.html" class="card">
+      <a href="/tutor/xemlichsu" class="card">
         <div class="card-icon">
           <i class="fas fa-history"></i>
         </div>
@@ -523,7 +564,7 @@
 
   <!-- Footer -->
   <div class="footer-wrapper">
-    <iframe src="footer.html" style="width: 100%; border: none; overflow: hidden; display: block; height: 100%;"></iframe>
+    <iframe src="../footer.html" style="width: 100%; border: none; overflow: hidden; display: block; height: 100%;"></iframe>
   </div>
 
   <script>
