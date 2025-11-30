@@ -23,17 +23,16 @@ import org.springframework.web.client.RestTemplate;
 import com.example.BTL_CNPM.Service.Notify_Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.net.URI;
 import java.net.URLEncoder;
-
-
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.ssl.SSLContextBuilder;
-
+import java.net.http.*;
+import java.net.URI;
+import java.time.Duration;
+import javax.net.ssl.*;
+import java.security.*;
 
 
 @RestController
@@ -88,79 +87,98 @@ public class AdminController {
     }
 
     @PostMapping("/userinfo")
-    public ResponseEntity<Map<String, Object>> getUserInfo(@RequestBody Map<String, String> body) {
+    public ResponseEntity<Map<String, Object>> userInfo(@RequestBody Map<String, String> body) {
         String ticket = body.get("ticket");
         String service = body.get("service");
 
-        if (ticket == null || service == null) {
-            return ResponseEntity.badRequest()
-                    .body(Collections.singletonMap("error", "Missing ticket or service URL"));
+        System.out.println("[Backend] userinfo | ticket=" + ticket + " | service=" + service);
+
+        if (ticket == null || service == null || ticket.isBlank() || service.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing ticket or service URL"));
         }
+
+        
+        final String CAS_HOST = "https://casserver-production.up.railway.app";   
+
+        String url = CAS_HOST + "/cas/serviceValidate" +
+                "?ticket=" + URLEncoder.encode(ticket, StandardCharsets.UTF_8) +
+                "&service=" + URLEncoder.encode(service, StandardCharsets.UTF_8);
+
+        System.out.println("[Backend] CAS validate URL: " + url);
 
         try {
-            // CAS URL
-            String casHost = "https://casserver-production.up.railway.app";
-            String validateUrl = casHost + "/cas/serviceValidate?service="
-                    + URLEncoder.encode(service, "UTF-8")
-                    + "&ticket=" + URLEncoder.encode(ticket, "UTF-8");
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(10))
+                    .sslContext(createTrustAllSslContext())   // bỏ qua SSL tự ký
+                    .build();
 
-            System.out.println("[Backend-Java] Validating ST with CAS: " + validateUrl);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(20))
+                    .GET()
+                    .build();
 
-            // Không verify SSL (giống httpsAgent rejectUnauthorized:false)
-            HttpComponentsClientHttpRequestFactory requestFactory =
-                    new HttpComponentsClientHttpRequestFactory(
-                            HttpClientBuilder.create()
-                                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                                    .setSSLContext(new SSLContextBuilder()
-                                            .loadTrustMaterial(null, (x, y) -> true)
-                                            .build())
-                                    .build()
-                    );
+            HttpResponse<String> resp = client.send(request, HttpResponse.BodyHandlers.ofString());
+            String xml = resp.body();
 
-            RestTemplate rest = new RestTemplate(requestFactory);
+            System.out.println("[Backend] CAS response (" + resp.statusCode() + "):\n" + xml);
 
-            ResponseEntity<String> response = rest.getForEntity(validateUrl, String.class);
-
-            String xml = response.getBody();
-            System.out.println("[Backend-Java] CAS status: " + response.getStatusCode());
-            System.out.println("[Backend-Java] CAS response: " + xml);
-
-            if (response.getStatusCodeValue() != 200) {
-                return ResponseEntity.status(response.getStatusCodeValue())
-                        .body(Collections.singletonMap("error", "CAS validation returned non-200 status"));
+            if (resp.statusCode() != 200) {
+                return ResponseEntity.status(502).body(Map.of("error", "CAS server error " + resp.statusCode()));
             }
 
-            // Check authentication failure
             if (xml.contains("<cas:authenticationFailure")) {
-                String reason = extractTag(xml, "authenticationFailure");
-                return ResponseEntity.status(401)
-                        .body(Collections.singletonMap("error", "ST validation failed: " + reason));
+                String msg = extractTag(xml, "authenticationFailure");
+                return ResponseEntity.status(401).body(Map.of("error", "Ticket không hợp lệ: " + msg));
             }
 
-            // Extract tags
-            Map<String, Object> attributes = new HashMap<>();
-            attributes.put("username", extractTag(xml, "username"));
-            attributes.put("keyuser", extractTag(xml, "keyuser"));
-            attributes.put("role", extractTag(xml, "role"));
+            Map<String, String> user = new HashMap<>();
+            user.put("username", extractTag(xml, "username"));
+            user.put("keyuser",  extractTag(xml, "keyuser"));
+            user.put("role",     extractTag(xml, "role"));
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("attributes", attributes);
+            System.out.println("[Backend] Đăng nhập thành công → " + user);
 
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(Map.of("success", true, "attributes", user));
 
         } catch (Exception e) {
+            System.err.println("[Backend] Lỗi xác thực CAS: " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.status(500)
-                    .body(Collections.singletonMap("error", "CAS validation exception: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("error", "Lỗi server"));
         }
     }
-    
-    
-    private String extractTag(String xml, String tag) {
-        Pattern pattern = Pattern.compile("<cas:" + tag + ">(.*?)</cas:" + tag + ">");
-        Matcher matcher = pattern.matcher(xml);
-        return matcher.find() ? matcher.group(1) : null;
+
+    // SSLContext chấp nhận mọi chứng chỉ (dùng cho CAS tự ký)
+    private SSLContext createTrustAllSslContext() throws NoSuchAlgorithmException, KeyManagementException {
+        TrustManager[] trustAllCerts = new TrustManager[] {
+            new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                    // Không làm gì
+                }
+
+                @Override
+                public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                    // Không làm gì → chấp nhận mọi chứng chỉ
+                }
+
+                @Override
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return new java.security.cert.X509Certificate[0];
+                }
+            }
+        };
+
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+        return sslContext;
+    }
+
+    // Lấy nội dung trong tag <cas:tagName>....</cas:tagName>
+    private String extractTag(String xml, String tagName) {
+        String pattern = "<cas:" + Pattern.quote(tagName) + ">(.*?)</cas:" + Pattern.quote(tagName) + ">";
+        Matcher matcher = Pattern.compile(pattern, Pattern.DOTALL).matcher(xml);
+        return matcher.find() ? matcher.group(1).trim() : null;
     }
 
     
