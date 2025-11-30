@@ -72,7 +72,11 @@ public class StudentService {
             );
 
             // Kiểm tra chính xác kết quả trả về: {"status":"rated"}
-            return result != null && result.trim().equals("{\"status\":\"rated\"}");
+            if (result != null && result.trim().startsWith("{")) {
+                // Dùng regex hoặc parse đơn giản để kiểm tra status
+                return result.contains("\"status\"") && result.contains("\"rated\"");
+            }
+            return false;
 
         } catch (Exception e) {
             System.err.println("Lỗi khi sinh viên gửi phản hồi: " + e.getMessage());
